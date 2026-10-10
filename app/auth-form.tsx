@@ -2,12 +2,40 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
-type AuthFormProps = { mode: "login" | "signup" };
+type AuthFormProps = { mode: "login" | "signup"; initialError?: string };
 
-export default function AuthForm({ mode }: AuthFormProps) {
+function signupErrorMessage(error: { message: string; code?: string; status?: number }) {
+  const message = error.message.toLowerCase();
+  const code = error.code?.toLowerCase() ?? "";
+
+  if (code === "email_exists" || code === "user_already_exists" || message.includes("already registered") || message.includes("already exists")) {
+    return "このメールアドレスはすでに登録されています。ログインをお試しください。";
+  }
+  if (message.includes("profiles_username_lower_key")) {
+    return "このユーザー名はすでに使われています。別のユーザー名をお試しください。";
+  }
+  if (code === "over_email_send_rate_limit" || message.includes("rate limit")) {
+    return "確認メールの送信回数が上限に達しました。少し時間をおいてからお試しください。";
+  }
+  if (code === "weak_password" || message.includes("password")) {
+    return "パスワードの条件を満たしていません。8文字以上で入力してください。";
+  }
+  if (code === "email_address_invalid" || message.includes("invalid email")) {
+    return "メールアドレスの形式を確認してください。";
+  }
+  if (message.includes("database error") || message.includes("saving new user")) {
+    return "プロフィールの作成に失敗しました。SupabaseのSQL Editorで supabase/profiles.sql を実行済みか確認してください。";
+  }
+  if (process.env.NODE_ENV === "development") {
+    return `登録エラー${error.status ? ` (${error.status})` : ""}${error.code ? ` [${error.code}]` : ""}: ${error.message}`;
+  }
+  return "登録できませんでした。入力内容とSupabaseの設定を確認して、もう一度お試しください。";
+}
+
+export default function AuthForm({ mode, initialError }: AuthFormProps) {
   const router = useRouter();
   const isSignup = mode === "signup";
   const [email, setEmail] = useState("");
@@ -15,14 +43,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError ?? "");
   const [isPending, setIsPending] = useState(false);
-
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("error") === "confirmation") {
-      setError("メール認証を完了できませんでした。確認メールのリンクを開き直してください。");
-    }
-  }, []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -58,13 +80,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
       setIsPending(false);
       if (signUpError) {
-        setError(
-          signUpError.message.toLowerCase().includes("already registered")
-            ? "このメールアドレスはすでに登録されています。"
-            : signUpError.message.toLowerCase().includes("duplicate")
-              ? "このユーザー名はすでに使われています。"
-              : "登録できませんでした。入力内容を確認して、もう一度お試しください。"
-        );
+        setError(signupErrorMessage(signUpError));
         return;
       }
 
