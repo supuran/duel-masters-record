@@ -330,3 +330,6 @@ button, input { font: inherit; }
 .match-field-heading { display: flex; align-items: center; gap: 6px; min-height: 15px; }
 .match-field-heading .optional-label { margin-left: 0; }
 
+
+.match-opponent-grid > .field-label { align-content: start; }
+
