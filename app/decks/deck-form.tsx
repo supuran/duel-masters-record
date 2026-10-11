@@ -89,7 +89,7 @@ export default function DeckForm() {
     if (insertError) {
       if (imagePath) await supabase.storage.from("deck-images").remove([imagePath]);
       setIsPending(false);
-      setError("デッキを保存できませんでした。Supabaseのテーブル設定を確認してください。");
+      setError(`登録エラー [${insertError.code ?? "unknown"}]: ${insertError.message}`);
       return;
     }
 

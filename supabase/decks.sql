@@ -72,3 +72,6 @@ create policy "Users can delete their own deck images"
   on storage.objects for delete
   to authenticated
   using (bucket_id = 'deck-images' and (storage.foldername(name))[1] = (select auth.uid()::text));
+
+-- SQL Editorからの実行後、Data APIにテーブル定義を再読込させる。
+notify pgrst, 'reload schema';
