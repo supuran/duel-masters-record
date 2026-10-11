@@ -304,3 +304,25 @@ button, input { font: inherit; }
   .match-history-main h2 { font-size: 12px; }
   .match-result-badge { min-width: 43px; padding: 6px; font-size: 8px; }
 }
+.manage-opponent-decks-link { width: max-content; margin-top: 2px; color: #8a6b2d; font-size: 9px; text-decoration: none; }
+.manage-opponent-decks-link:hover { text-decoration: underline; }
+.match-form .match-opponent-select { width: 100%; min-height: 46px; padding: 0 13px; border: 1px solid #e2e1dc; border-radius: 8px; outline: none; background: #fff; color: #242936; font-size: 12px; }
+.match-form .match-opponent-select:focus { border-color: #b8964e; box-shadow: 0 0 0 3px #b8964e1c; }
+.opponent-deck-page-content .deck-form-card h1 { font-size: 24px; }
+.opponent-deck-form { display: grid; gap: 9px; padding: 18px; border-radius: 10px; background: #f8f6f0; }
+.opponent-deck-form > .field-label { color: #252a36; font-size: 11px; font-weight: 700; }
+.opponent-deck-form-row { display: flex; gap: 9px; }
+.opponent-deck-form-row input { width: 100%; min-width: 0; min-height: 43px; padding: 0 12px; border: 1px solid #e2e1dc; border-radius: 7px; outline: none; background: #fff; color: #242936; font-size: 11px; }
+.opponent-deck-form-row input:focus { border-color: #b8964e; box-shadow: 0 0 0 3px #b8964e1c; }
+.opponent-deck-form-row .submit-button { min-height: 43px; flex: 0 0 auto; padding: 0 14px; font-size: 10px; }
+.opponent-deck-form .field-hint { margin-top: -4px; }
+.opponent-deck-form .form-message, .opponent-deck-form .match-success-message { margin: 2px 0 0; }
+.opponent-deck-list-heading { display: flex; align-items: center; justify-content: space-between; margin-top: 27px; padding-bottom: 10px; border-bottom: 1px solid #eeece6; }
+.opponent-deck-list-heading h2 { margin: 0; color: #333946; font-size: 13px; }
+.opponent-deck-list-heading span { color: #9296a0; font-size: 9px; }
+.opponent-deck-empty { margin: 0; padding: 20px 4px; color: #9296a0; font-size: 10px; }
+.opponent-deck-list { display: grid; margin: 0; padding: 0; list-style: none; }
+.opponent-deck-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 54px; padding: 8px 4px; border-bottom: 1px solid #f0eee9; color: #454a55; font-size: 11px; }
+.opponent-deck-delete-wrap { display: flex; align-items: center; gap: 8px; }
+.opponent-deck-delete-wrap .deck-delete-error { max-width: 220px; }
+.opponent-deck-list .deck-delete-button { font-size: 9px; }

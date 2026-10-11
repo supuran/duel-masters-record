@@ -4,7 +4,7 @@ import LogoutButton from "./logout-button";
 import { createClient } from "@/utils/supabase/server";
 
 function percentage(part: number | null, whole: number | null) {
-  if (!part || !whole) return "—";
+  if (part === null || whole === null || whole === 0) return "—";
   return String(Math.round((part / whole) * 100));
 }
 
@@ -18,24 +18,30 @@ export default async function MyPage() {
     : "プレイヤー";
   const avatarLabel = username.trim().charAt(0).toUpperCase() || "D";
 
-  const [totalResult, winsResult, firstTotalResult, firstWinsResult, secondTotalResult, secondWinsResult, recentResult, usageResult] = await Promise.all([
+  const [totalResult, winsResult, drawsResult, firstTotalResult, firstWinsResult, firstDrawsResult, secondTotalResult, secondWinsResult, secondDrawsResult, recentResult, usageResult] = await Promise.all([
     supabase.from("matches").select("id", { count: "exact", head: true }),
     supabase.from("matches").select("id", { count: "exact", head: true }).eq("result", "win"),
+    supabase.from("matches").select("id", { count: "exact", head: true }).eq("result", "draw"),
     supabase.from("matches").select("id", { count: "exact", head: true }).eq("turn_order", "first"),
     supabase.from("matches").select("id", { count: "exact", head: true }).eq("turn_order", "first").eq("result", "win"),
+    supabase.from("matches").select("id", { count: "exact", head: true }).eq("turn_order", "first").eq("result", "draw"),
     supabase.from("matches").select("id", { count: "exact", head: true }).eq("turn_order", "second"),
     supabase.from("matches").select("id", { count: "exact", head: true }).eq("turn_order", "second").eq("result", "win"),
+    supabase.from("matches").select("id", { count: "exact", head: true }).eq("turn_order", "second").eq("result", "draw"),
     supabase.from("matches").select("id, deck_name, result, played_at").order("played_at", { ascending: false }).order("created_at", { ascending: false }).limit(5),
     supabase.from("matches").select("deck_name"),
   ]);
 
   const matchCount = totalResult.count ?? 0;
   const totalError = totalResult.error;
+  const winMatches = matchCount - (drawsResult.count ?? 0);
+  const firstMatches = (firstTotalResult.count ?? 0) - (firstDrawsResult.count ?? 0);
+  const secondMatches = (secondTotalResult.count ?? 0) - (secondDrawsResult.count ?? 0);
   const recentMatches = recentResult.data ?? [];
   const deckCounts = new Map<string, number>();
   for (const match of usageResult.data ?? []) deckCounts.set(match.deck_name, (deckCounts.get(match.deck_name) ?? 0) + 1);
   const deckUsage = [...deckCounts.entries()].sort((a, b) => b[1] - a[1]);
-  const outcomeLabels: Record<string, string> = { win: "勝ち", loss: "負け", draw: "引き分け" };
+  const outcomeLabels: Record<string, string> = { win: "勝ち", loss: "負け", draw: "引き分け（旧記録）" };
 
   return (
     <main className="dashboard-shell">
@@ -76,19 +82,19 @@ export default async function MyPage() {
           <article className="dashboard-stat">
             <span className="stat-icon" aria-hidden="true">％</span>
             <p>勝率</p>
-            <strong>{totalError ? "—" : percentage(winsResult.count, matchCount)}<small> %</small></strong>
+            <strong>{totalError ? "—" : percentage(winsResult.count, winMatches)}<small> %</small></strong>
             <span className="stat-footnote">引き分けを含む総試合数から算出</span>
           </article>
           <article className="dashboard-stat">
             <span className="stat-icon" aria-hidden="true">先</span>
             <p>先攻勝率</p>
-            <strong>{totalError ? "—" : percentage(firstWinsResult.count, firstTotalResult.count)}<small> %</small></strong>
+            <strong>{totalError ? "—" : percentage(firstWinsResult.count, firstMatches)}<small> %</small></strong>
             <span className="stat-footnote">先攻での勝率</span>
           </article>
           <article className="dashboard-stat">
             <span className="stat-icon" aria-hidden="true">後</span>
             <p>後攻勝率</p>
-            <strong>{totalError ? "—" : percentage(secondWinsResult.count, secondTotalResult.count)}<small> %</small></strong>
+            <strong>{totalError ? "—" : percentage(secondWinsResult.count, secondMatches)}<small> %</small></strong>
             <span className="stat-footnote">後攻での勝率</span>
           </article>
         </section>

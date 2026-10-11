@@ -6,7 +6,15 @@ import { createMatchAction, type MatchActionState } from "../actions";
 
 type DeckOption = { id: string; name: string };
 
-export default function MatchForm({ decks, today }: { decks: DeckOption[]; today: string }) {
+export default function MatchForm({
+  decks,
+  opponentDecks,
+  today,
+}: {
+  decks: DeckOption[];
+  opponentDecks: DeckOption[];
+  today: string;
+}) {
   const initialState: MatchActionState = { error: "" };
   const [state, formAction, isPending] = useActionState(createMatchAction, initialState);
 
@@ -30,7 +38,6 @@ export default function MatchForm({ decks, today }: { decks: DeckOption[]; today
         <div className="match-choice-row">
           <label className="match-choice"><input defaultChecked name="result" required type="radio" value="win" /><span>勝ち</span></label>
           <label className="match-choice"><input name="result" type="radio" value="loss" /><span>負け</span></label>
-          <label className="match-choice"><input name="result" type="radio" value="draw" /><span>引き分け</span></label>
         </div>
       </fieldset>
 
@@ -47,10 +54,14 @@ export default function MatchForm({ decks, today }: { decks: DeckOption[]; today
           対戦相手 <span className="optional-label">任意</span>
           <input autoComplete="off" maxLength={40} name="opponent_name" placeholder="プレイヤー名" />
         </label>
-        <label className="field-label">
-          相手のデッキ <span className="optional-label">任意</span>
-          <input autoComplete="off" maxLength={40} name="opponent_deck" placeholder="デッキ名" />
-        </label>
+        <div className="field-label">
+          <label htmlFor="opponent-deck-select">相手のデッキ <span className="optional-label">任意</span></label>
+          <select className="match-opponent-select" defaultValue="" id="opponent-deck-select" name="opponent_deck_id">
+            <option value="">未選択・不明</option>
+            {opponentDecks.map((deck) => <option key={deck.id} value={deck.id}>{deck.name}</option>)}
+          </select>
+          <Link className="manage-opponent-decks-link" href="/opponent-decks">候補を登録・管理する →</Link>
+        </div>
       </div>
 
       <label className="field-label">

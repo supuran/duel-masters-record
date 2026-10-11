@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import LogoutButton from "../mypage/logout-button";
 import { createClient } from "@/utils/supabase/server";
 
-const RESULT_LABELS: Record<string, string> = { win: "勝ち", loss: "負け", draw: "引き分け" };
+const RESULT_LABELS: Record<string, string> = { win: "勝ち", loss: "負け", draw: "引き分け（旧記録）" };
 const TURN_LABELS: Record<string, string> = { first: "先攻", second: "後攻" };
 
 function formatDate(value: string) {
@@ -61,7 +61,7 @@ export default async function MatchesPage({
               <article className="match-history-card" key={match.id}>
                 <div className="match-history-date">{formatDate(match.played_at)}<span>{TURN_LABELS[match.turn_order] ?? match.turn_order}</span></div>
                 <div className="match-history-main">
-                  <h2>{match.deck_name}</h2>
+                  <h2>{match.deck_name || "デッキ名未設定"}</h2>
                   <p>{match.opponent_name || "対戦相手未設定"}{match.opponent_deck ? ` · ${match.opponent_deck}` : ""}</p>
                   {match.memo && <p className="match-history-memo">{match.memo}</p>}
                 </div>

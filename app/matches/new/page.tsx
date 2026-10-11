@@ -20,10 +20,10 @@ export default async function NewMatchPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/");
 
-  const { data: decks, error } = await supabase
-    .from("decks")
-    .select("id, name")
-    .order("created_at", { ascending: false });
+  const [{ data: decks, error: decksError }, { data: opponentDecks, error: opponentsError }] = await Promise.all([
+    supabase.from("decks").select("id, name").order("created_at", { ascending: false }),
+    supabase.from("opponent_decks").select("id, name").order("name", { ascending: true }),
+  ]);
 
   return (
     <main className="deck-page-shell">
@@ -43,15 +43,17 @@ export default async function NewMatchPage() {
           <p className="eyebrow">NEW MATCH</p>
           <h1>対戦を記録</h1>
           <p className="deck-form-intro">勝敗や先攻・後攻を記録して、戦績を振り返りましょう。</p>
-          {error ? (
-            <p className="form-message error-message" role="alert">デッキ一覧を読み込めません。時間をおいて再読み込みしてください。</p>
+          {decksError ? (
+            <p className="form-message error-message" role="alert">デッキ一覧を読み込めません。デッキ管理ページとSupabaseの設定を確認してください。</p>
           ) : !decks?.length ? (
             <div className="match-no-decks">
               <p>対戦記録をつける前に、使用するデッキを登録してください。</p>
               <Link className="deck-add-button" href="/decks/new">デッキを登録</Link>
             </div>
+          ) : opponentsError ? (
+            <p className="form-message error-message" role="alert">相手デッキ一覧を読み込めません。Supabase SQL Editorで最新の <code>supabase/matches.sql</code> を実行してください。</p>
           ) : (
-            <MatchForm decks={decks} today={tokyoToday()} />
+            <MatchForm decks={decks} opponentDecks={opponentDecks ?? []} today={tokyoToday()} />
           )}
         </section>
       </div>
