@@ -43,7 +43,7 @@ create table if not exists public.matches (
   opponent_deck text check (opponent_deck is null or char_length(opponent_deck) <= 40),
   opponent_deck_name text not null default '' check (char_length(opponent_deck_name) <= 40),
   result text not null,
-  turn_order text not null check (turn_order in ('first', 'second')),
+  turn_order text not null,
   played_at date not null default current_date,
   memo text check (memo is null or char_length(memo) <= 500),
   created_at timestamptz not null default now(),
@@ -76,6 +76,11 @@ alter table public.matches drop constraint if exists matches_result_check;
 alter table public.matches drop constraint if exists matches_result_win_loss_check;
 alter table public.matches
   add constraint matches_result_win_loss_check check (result in ('win', 'loss')) not valid;
+
+alter table public.matches drop constraint if exists matches_turn_order_check;
+alter table public.matches drop constraint if exists matches_turn_order_first_second_check;
+alter table public.matches
+  add constraint matches_turn_order_first_second_check check (turn_order in ('first', 'second')) not valid;
 
 create index if not exists matches_user_id_played_at_idx
   on public.matches (user_id, played_at desc, created_at desc);
