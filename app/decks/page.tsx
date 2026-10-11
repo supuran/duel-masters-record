@@ -1,0 +1,77 @@
+import Image from "next/image";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import LogoutButton from "../mypage/logout-button";
+import DeleteDeckButton from "./delete-button";
+import { createClient } from "@/utils/supabase/server";
+
+export default async function DecksPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/");
+
+  const { data: decks, error } = await supabase
+    .from("decks")
+    .select("id, name, image_path, created_at")
+    .order("created_at", { ascending: false });
+
+  const deckCards = await Promise.all((decks ?? []).map(async (deck) => {
+    let imageUrl: string | null = null;
+    if (deck.image_path) {
+      const { data } = await supabase.storage.from("deck-images").createSignedUrl(deck.image_path, 3600);
+      imageUrl = data?.signedUrl ?? null;
+    }
+    return { ...deck, imageUrl };
+  }));
+
+  return (
+    <main className="deck-page-shell">
+      <header className="dashboard-header">
+        <Link className="dashboard-brand" href="/mypage">
+          <span className="dashboard-brand-mark">D</span>
+          <span>DUEL LOG<small>戦績管理</small></span>
+        </Link>
+        <div className="dashboard-user">
+          <Link className="back-to-dashboard" href="/mypage">マイページ</Link>
+          <LogoutButton />
+        </div>
+      </header>
+
+      <div className="deck-page-content">
+        <div className="deck-page-title-row">
+          <div><p className="eyebrow">MY COLLECTION</p><h1>デッキ管理</h1><p>対戦で使うデッキを登録しておきましょう。</p></div>
+          <Link className="deck-add-button" href="/decks/new"><span aria-hidden="true">＋</span> デッキを登録</Link>
+        </div>
+
+        {error ? (
+          <section className="deck-page-message" role="alert">
+            デッキ一覧を読み込めませんでした。SupabaseのSQL Editorで <code>supabase/decks.sql</code> を実行してください。
+          </section>
+        ) : deckCards.length === 0 ? (
+          <section className="deck-empty-card">
+            <div className="deck-empty-illustration" aria-hidden="true"><span>DM</span></div>
+            <h2>デッキはまだ登録されていません</h2>
+            <p>デッキ名と画像を登録すると、対戦記録をつけるときに選べるようになります。</p>
+            <Link className="deck-add-button secondary" href="/decks/new">最初のデッキを登録する</Link>
+          </section>
+        ) : (
+          <section className="deck-card-grid" aria-label="登録済みデッキ">
+            {deckCards.map((deck) => (
+              <article className="deck-item-card" key={deck.id}>
+                <div className="deck-item-image">
+                  {deck.imageUrl ? (
+                    <Image alt={`${deck.name}の画像`} fill sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw" src={deck.imageUrl} unoptimized />
+                  ) : <span aria-hidden="true">DM</span>}
+                </div>
+                <div className="deck-item-details">
+                  <div><p className="deck-item-label">MY DECK</p><h2>{deck.name}</h2></div>
+                  <DeleteDeckButton deckId={deck.id} imagePath={deck.image_path} />
+                </div>
+              </article>
+            ))}
+          </section>
+        )}
+      </div>
+    </main>
+  );
+}

@@ -21,6 +21,7 @@ export default async function MyPage() {
           <span className="dashboard-brand-mark">D</span>
           <span>DUEL LOG<small>戦績管理</small></span>
         </Link>
+        <Link className="dashboard-decks-link" href="/decks">デッキ管理 <span aria-hidden="true">↗</span></Link>
         <div className="dashboard-user">
           <span className="user-avatar" aria-hidden="true">{avatarLabel}</span>
           <span className="dashboard-username">{username}</span>
