@@ -326,3 +326,7 @@ button, input { font: inherit; }
 .opponent-deck-delete-wrap { display: flex; align-items: center; gap: 8px; }
 .opponent-deck-delete-wrap .deck-delete-error { max-width: 220px; }
 .opponent-deck-list .deck-delete-button { font-size: 9px; }
+
+.match-field-heading { display: flex; align-items: center; gap: 6px; min-height: 15px; }
+.match-field-heading .optional-label { margin-left: 0; }
+
