@@ -9,6 +9,9 @@ create table if not exists public.decks (
   created_at timestamptz not null default now()
 );
 
+alter table public.decks
+  add column if not exists image_path text;
+
 create index if not exists decks_user_id_created_at_idx
   on public.decks (user_id, created_at desc);
 
