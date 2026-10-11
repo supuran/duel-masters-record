@@ -41,6 +41,7 @@ create table if not exists public.matches (
   opponent_deck_id uuid references public.opponent_decks (id) on delete set null,
   opponent_name text check (opponent_name is null or char_length(opponent_name) <= 40),
   opponent_deck text check (opponent_deck is null or char_length(opponent_deck) <= 40),
+  opponent_deck_name text not null default '' check (char_length(opponent_deck_name) <= 40),
   result text not null,
   turn_order text not null check (turn_order in ('first', 'second')),
   played_at date not null default current_date,
@@ -57,6 +58,7 @@ alter table public.matches add column if not exists deck_name text;
 alter table public.matches add column if not exists opponent_deck_id uuid references public.opponent_decks (id) on delete set null;
 alter table public.matches add column if not exists opponent_name text;
 alter table public.matches add column if not exists opponent_deck text;
+alter table public.matches add column if not exists opponent_deck_name text not null default '';
 alter table public.matches add column if not exists result text;
 alter table public.matches add column if not exists turn_order text;
 alter table public.matches add column if not exists played_at date default current_date;

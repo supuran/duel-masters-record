@@ -23,7 +23,7 @@ export default async function MatchesPage({
 
   const { data: matches, error } = await supabase
     .from("matches")
-    .select("id, deck_name, opponent_name, opponent_deck, result, turn_order, played_at, memo")
+    .select("id, deck_name, opponent_name, opponent_deck, opponent_deck_name, result, turn_order, played_at, memo")
     .order("played_at", { ascending: false })
     .order("created_at", { ascending: false });
 
@@ -62,7 +62,7 @@ export default async function MatchesPage({
                 <div className="match-history-date">{formatDate(match.played_at)}<span>{TURN_LABELS[match.turn_order] ?? match.turn_order}</span></div>
                 <div className="match-history-main">
                   <h2>{match.deck_name || "デッキ名未設定"}</h2>
-                  <p>{match.opponent_name || "対戦相手未設定"}{match.opponent_deck ? ` · ${match.opponent_deck}` : ""}</p>
+                  <p>{match.opponent_name || "対戦相手未設定"}{(match.opponent_deck || match.opponent_deck_name) ? ` · ${match.opponent_deck || match.opponent_deck_name}` : ""}</p>
                   {match.memo && <p className="match-history-memo">{match.memo}</p>}
                 </div>
                 <span className={`match-result-badge ${match.result}`}>{RESULT_LABELS[match.result] ?? match.result}</span>

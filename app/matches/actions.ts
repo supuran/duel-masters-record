@@ -60,6 +60,7 @@ export async function createMatchAction(
     opponent_deck_id: opponentDeck?.id ?? null,
     opponent_name: opponentName || null,
     opponent_deck: opponentDeck?.name ?? null,
+    opponent_deck_name: opponentDeck?.name ?? "",
     result,
     turn_order: turnOrder,
     played_at: playedAt,
