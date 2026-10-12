@@ -50,7 +50,11 @@ export default async function MyPage() {
           <span className="dashboard-brand-mark">D</span>
           <span>DUEL LOG<small>戦績管理</small></span>
         </Link>
-        <Link className="dashboard-decks-link" href="/decks">デッキ管理 <span aria-hidden="true">↗</span></Link>
+        <nav className="dashboard-main-nav" aria-label="メインメニュー">
+          <Link href="/decks">デッキ管理</Link>
+          <Link href="/players">ユーザー検索</Link>
+          <Link href="/friends">フレンド</Link>
+        </nav>
         <div className="dashboard-user">
           <span className="user-avatar" aria-hidden="true">{avatarLabel}</span>
           <span className="dashboard-username">{username}</span>
