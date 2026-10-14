@@ -14,11 +14,9 @@ export default async function MyPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/");
 
-  const username = typeof user.user_metadata.username === "string"
-    ? user.user_metadata.username
-    : "プレイヤー";
+  const { data: profile } = await supabase.from("profiles").select("username, avatar_path").eq("id", user.id).maybeSingle();
+  const username = profile?.username ?? (typeof user.user_metadata.username === "string" ? user.user_metadata.username : "プレイヤー");
   const avatarLabel = username.trim().charAt(0).toUpperCase() || "D";
-  const { data: profile } = await supabase.from("profiles").select("avatar_path").eq("id", user.id).maybeSingle();
   let avatarUrl: string | null = null;
   if (profile?.avatar_path) {
     const { data } = await supabase.storage.from("user-avatars").createSignedUrl(profile.avatar_path, 3600);
@@ -61,7 +59,7 @@ export default async function MyPage() {
           <Link href="/decks">デッキ管理</Link>
           <Link href="/players">ユーザー検索</Link>
           <Link href="/friends">フレンド</Link>
-          <Link href="/settings/profile">アイコン設定</Link>
+          <Link href="/settings/profile">プロフィール設定</Link>
         </nav>
         <div className="dashboard-user">
           <Link aria-label="ユーザーアイコンを設定" className="user-avatar-link" href="/settings/profile">

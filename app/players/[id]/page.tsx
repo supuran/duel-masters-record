@@ -14,7 +14,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
   if (!user) redirect("/");
   if (id === user.id) redirect("/mypage");
   const [{ data: profile }, { data: relations }] = await Promise.all([
-    supabase.from("profiles").select("id, username, avatar_path").eq("id", id).maybeSingle(),
+    supabase.from("profiles").select("id, username, bio, avatar_path").eq("id", id).maybeSingle(),
     supabase.from("friend_requests").select("id, requester_id, recipient_id, status").or(`requester_id.eq.${user.id},recipient_id.eq.${user.id}`),
   ]);
   if (!profile) notFound();
@@ -54,7 +54,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
       <header className="dashboard-header"><Link className="dashboard-brand" href="/mypage"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link><div className="dashboard-user"><Link className="back-to-dashboard" href="/players">ユーザー検索</Link><LogoutButton /></div></header>
       <div className="deck-page-content player-page-content">
         <Link className="deck-back-link" href="/players">← ユーザー検索へ戻る</Link>
-        <section className="player-profile-heading">{profileAvatarUrl ? <Image alt="" className="player-avatar-image large" height={60} src={profileAvatarUrl} unoptimized width={60} /> : <span className="player-avatar large">{profile.username.slice(0, 1).toUpperCase()}</span>}<div><p className="eyebrow">PLAYER PROFILE</p><h1>{profile.username}</h1></div><FriendRequestButton state={state} userId={id} /></section>
+        <section className="player-profile-heading">{profileAvatarUrl ? <Image alt="" className="player-avatar-image large" height={60} src={profileAvatarUrl} unoptimized width={60} /> : <span className="player-avatar large">{profile.username.slice(0, 1).toUpperCase()}</span>}<div><p className="eyebrow">PLAYER PROFILE</p><h1>{profile.username}</h1>{profile.bio && <p className="player-bio">{profile.bio}</p>}</div><FriendRequestButton state={state} userId={id} /></section>
         {!isFriend ? <section className="player-private-notice"><h2>フレンド限定プロフィール</h2><p>フレンドになると、登録デッキと対戦履歴を閲覧できます。フレンド申請が承認されるとここに表示されます。</p></section> : <>
           <section className="player-stats"><article><span>試合数</span><strong>{totalMatches}</strong></article><article><span>勝率</span><strong>{percent(totalWins, totalMatches)}</strong></article><article><span>登録デッキ</span><strong>{decks.length}</strong></article></section>
           <section className="player-section"><div className="player-section-heading"><div><p className="eyebrow">DECKS</p><h2>登録デッキ</h2></div><span>{deckCards.length}件</span></div>

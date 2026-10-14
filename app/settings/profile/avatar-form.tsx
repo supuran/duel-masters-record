@@ -9,8 +9,10 @@ import { createClient } from "@/utils/supabase/client";
 const MIME_EXTENSIONS: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 const MAX_SIZE = 3 * 1024 * 1024;
 
-export default function AvatarForm({ username, avatarPath, avatarUrl }: { username: string; avatarPath: string | null; avatarUrl: string | null }) {
+export default function AvatarForm({ username, bio, avatarPath, avatarUrl }: { username: string; bio: string | null; avatarPath: string | null; avatarUrl: string | null }) {
   const router = useRouter();
+  const [usernameValue, setUsernameValue] = useState(username);
+  const [bioValue, setBioValue] = useState(bio ?? "");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -29,23 +31,33 @@ export default function AvatarForm({ username, avatarPath, avatarUrl }: { userna
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!file) { setError("設定する画像を選んでください。"); return; }
+    const normalizedUsername = usernameValue.trim();
+    const normalizedBio = bioValue.trim();
+    if (Array.from(normalizedUsername).length < 2 || Array.from(normalizedUsername).length > 20) { setError("ユーザー名は2〜20文字で入力してください。"); return; }
+    if (Array.from(normalizedBio).length > 100) { setError("自己紹介は100文字以内で入力してください。"); return; }
     setPending(true);
     setError("");
     const supabase = createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (!user || authError) { setPending(false); setError("ログイン状態を確認できません。もう一度ログインしてください。"); return; }
-    const path = `${user.id}/${crypto.randomUUID()}.${MIME_EXTENSIONS[file.type]}`;
-    const { error: uploadError } = await supabase.storage.from("user-avatars").upload(path, file, { contentType: file.type, upsert: false });
-    if (uploadError) { setPending(false); setError(`画像をアップロードできませんでした。Supabase SQL Editorで supabase/avatars.sql を実行済みか確認してください。 (${uploadError.message})`); return; }
-    const { error: updateError } = await supabase.from("profiles").update({ avatar_path: path }).eq("id", user.id);
+    let newAvatarPath: string | null = null;
+    if (file) {
+      newAvatarPath = `${user.id}/${crypto.randomUUID()}.${MIME_EXTENSIONS[file.type]}`;
+      const { error: uploadError } = await supabase.storage.from("user-avatars").upload(newAvatarPath, file, { contentType: file.type, upsert: false });
+      if (uploadError) { setPending(false); setError(`画像をアップロードできませんでした。Supabase SQL Editorで supabase/avatars.sql を実行済みか確認してください。 (${uploadError.message})`); return; }
+    }
+    const { error: updateError } = await supabase.from("profiles").update({
+      username: normalizedUsername,
+      bio: normalizedBio || null,
+      ...(newAvatarPath ? { avatar_path: newAvatarPath } : {}),
+    }).eq("id", user.id);
     if (updateError) {
-      await supabase.storage.from("user-avatars").remove([path]);
+      if (newAvatarPath) await supabase.storage.from("user-avatars").remove([newAvatarPath]);
       setPending(false);
-      setError(`プロフィールを更新できませんでした。${updateError.message}`);
+      setError(updateError.code === "23505" ? "このユーザー名はすでに使われています。別の名前を入力してください。" : `プロフィールを更新できませんでした。${updateError.message}`);
       return;
     }
-    if (avatarPath?.startsWith(`${user.id}/`)) await supabase.storage.from("user-avatars").remove([avatarPath]);
+    if (newAvatarPath && avatarPath?.startsWith(`${user.id}/`)) await supabase.storage.from("user-avatars").remove([avatarPath]);
     router.push("/mypage?profileUpdated=1");
     router.refresh();
   }
@@ -55,9 +67,11 @@ export default function AvatarForm({ username, avatarPath, avatarUrl }: { userna
   return (
     <form className="avatar-settings-form" onSubmit={handleSubmit}>
       <div className="avatar-settings-preview">{imageUrl ? <Image alt="ユーザーアイコン" className="avatar-preview-image" height={112} src={imageUrl} unoptimized width={112} /> : <span>{initial}</span>}</div>
+      <label className="field-label">ユーザー名<input autoComplete="nickname" maxLength={20} onChange={(event) => setUsernameValue(event.target.value)} required value={usernameValue} /><span className="field-hint">2〜20文字。他のユーザーにも表示されます。</span></label>
+      <label className="field-label">自己紹介<textarea maxLength={100} onChange={(event) => setBioValue(event.target.value)} placeholder="デュエマの好きなデッキなど" rows={4} value={bioValue} /><span className="field-hint">{Array.from(bioValue).length}/100文字</span></label>
       <label className="field-label">アイコン画像<input accept="image/jpeg,image/png,image/webp" onChange={handleChange} type="file" /><span className="field-hint">JPEG・PNG・WebP、3MBまで</span></label>
       {error && <p className="form-message error-message" role="alert">{error}</p>}
-      <div className="deck-form-actions"><Link className="deck-cancel-button" href="/mypage">キャンセル</Link><button className="submit-button" disabled={pending || !file} type="submit">{pending ? "保存中…" : "アイコンを保存"}</button></div>
+      <div className="deck-form-actions"><Link className="deck-cancel-button" href="/mypage">キャンセル</Link><button className="submit-button" disabled={pending} type="submit">{pending ? "保存中…" : "プロフィールを保存"}</button></div>
     </form>
   );
 }

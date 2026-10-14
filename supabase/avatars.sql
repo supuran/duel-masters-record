@@ -2,6 +2,10 @@
 -- ユーザーアイコンを非公開ストレージに保存します。
 
 alter table public.profiles add column if not exists avatar_path text;
+alter table public.profiles add column if not exists bio text;
+alter table public.profiles drop constraint if exists profiles_bio_length_check;
+alter table public.profiles add constraint profiles_bio_length_check
+  check (bio is null or char_length(bio) <= 100);
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('user-avatars', 'user-avatars', false, 3145728, array['image/jpeg', 'image/png', 'image/webp'])
