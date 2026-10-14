@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import LogoutButton from "../mypage/logout-button";
 import FriendRequestButton from "../friends/request-button";
@@ -11,11 +12,11 @@ export default async function PlayersPage({ searchParams }: { searchParams: Prom
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/");
 
-  let profiles: { id: string; username: string }[] = [];
+  let profiles: { id: string; username: string; avatar_path: string | null }[] = [];
   let profileError = false;
   if (term.length >= 2) {
     const safeTerm = term.replace(/[\\%_]/g, (value) => `\\${value}`);
-    const { data, error } = await supabase.from("profiles").select("id, username").ilike("username", `%${safeTerm}%`).neq("id", user.id).order("username").limit(30);
+    const { data, error } = await supabase.from("profiles").select("id, username, avatar_path").ilike("username", `%${safeTerm}%`).neq("id", user.id).order("username").limit(30);
     profiles = data ?? [];
     profileError = Boolean(error);
   }
@@ -30,6 +31,11 @@ export default async function PlayersPage({ searchParams }: { searchParams: Prom
     if (relation.status === "pending") return relation.requester_id === user.id ? "outgoing" : "incoming";
     return "none";
   };
+  const profilesWithAvatars = await Promise.all(profiles.map(async (profile) => {
+    if (!profile.avatar_path) return { ...profile, avatarUrl: null as string | null };
+    const { data } = await supabase.storage.from("user-avatars").createSignedUrl(profile.avatar_path, 3600);
+    return { ...profile, avatarUrl: data?.signedUrl ?? null };
+  }));
 
   return (
     <main className="deck-page-shell">
@@ -40,7 +46,7 @@ export default async function PlayersPage({ searchParams }: { searchParams: Prom
         {profileError ? <p className="deck-page-message" role="alert">プロフィールを読み込めません。Supabase SQL Editorで <code>supabase/profiles.sql</code> と <code>supabase/friends.sql</code> を実行してください。</p>
           : term.length < 2 ? <section className="deck-empty-card"><h2>ユーザー名を入力してください</h2><p>2文字以上入力して検索できます。</p></section>
             : !profiles.length ? <section className="deck-empty-card"><h2>ユーザーが見つかりません</h2><p>別のユーザー名で検索してください。</p></section>
-              : <section className="player-card-list" aria-label="検索結果">{profiles.map((profile) => <article className="player-card" key={profile.id}><Link href={`/players/${profile.id}`} className="player-profile-link"><span className="player-avatar">{profile.username.slice(0, 1).toUpperCase()}</span><span><strong>{profile.username}</strong><small>プロフィールを見る →</small></span></Link><FriendRequestButton state={stateFor(profile.id)} userId={profile.id} /></article>)}</section>}
+              : <section className="player-card-list" aria-label="検索結果">{profilesWithAvatars.map((profile) => <article className="player-card" key={profile.id}><Link href={`/players/${profile.id}`} className="player-profile-link">{profile.avatarUrl ? <Image alt="" className="player-avatar-image" height={38} src={profile.avatarUrl} unoptimized width={38} /> : <span className="player-avatar">{profile.username.slice(0, 1).toUpperCase()}</span>}<span><strong>{profile.username}</strong><small>プロフィールを見る →</small></span></Link><FriendRequestButton state={stateFor(profile.id)} userId={profile.id} /></article>)}</section>}
       </div>
     </main>
   );

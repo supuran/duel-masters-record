@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import LogoutButton from "./logout-button";
 import { createClient } from "@/utils/supabase/server";
@@ -17,6 +18,12 @@ export default async function MyPage() {
     ? user.user_metadata.username
     : "プレイヤー";
   const avatarLabel = username.trim().charAt(0).toUpperCase() || "D";
+  const { data: profile } = await supabase.from("profiles").select("avatar_path").eq("id", user.id).maybeSingle();
+  let avatarUrl: string | null = null;
+  if (profile?.avatar_path) {
+    const { data } = await supabase.storage.from("user-avatars").createSignedUrl(profile.avatar_path, 3600);
+    avatarUrl = data?.signedUrl ?? null;
+  }
 
   const [totalResult, winsResult, drawsResult, firstTotalResult, firstWinsResult, firstDrawsResult, secondTotalResult, secondWinsResult, secondDrawsResult, recentResult, usageResult] = await Promise.all([
     supabase.from("matches").select("id", { count: "exact", head: true }),
@@ -54,9 +61,12 @@ export default async function MyPage() {
           <Link href="/decks">デッキ管理</Link>
           <Link href="/players">ユーザー検索</Link>
           <Link href="/friends">フレンド</Link>
+          <Link href="/settings/profile">アイコン設定</Link>
         </nav>
         <div className="dashboard-user">
-          <span className="user-avatar" aria-hidden="true">{avatarLabel}</span>
+          <Link aria-label="ユーザーアイコンを設定" className="user-avatar-link" href="/settings/profile">
+            {avatarUrl ? <Image alt="ユーザーアイコン" className="user-avatar" height={34} src={avatarUrl} unoptimized width={34} /> : <span className="user-avatar" aria-hidden="true">{avatarLabel}</span>}
+          </Link>
           <span className="dashboard-username">{username}</span>
           <LogoutButton />
         </div>
