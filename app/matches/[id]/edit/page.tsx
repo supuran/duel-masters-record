@@ -17,12 +17,14 @@ export default async function EditMatchPage({ params }: { params: Promise<{ id: 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/");
-  const [{ data: match }, { data: decks, error: decksError }, { data: opponentDecks, error: opponentsError }] = await Promise.all([
+  const [{ data: match }, { data: allDecks, error: decksError }, { data: allOpponentDecks, error: opponentsError }] = await Promise.all([
     supabase.from("matches").select("id, deck_id, opponent_deck_id, opponent_name, result, turn_order, played_at, memo").eq("id", id).eq("user_id", user.id).maybeSingle(),
-    supabase.from("decks").select("id, name").order("created_at", { ascending: false }),
-    supabase.from("opponent_decks").select("id, name").order("name", { ascending: true }),
+    supabase.from("decks").select("id, name, is_hidden").order("created_at", { ascending: false }),
+    supabase.from("opponent_decks").select("id, name, is_hidden").order("name", { ascending: true }),
   ]);
   if (!match) notFound();
+  const decks = (allDecks ?? []).filter((deck) => !deck.is_hidden || deck.id === match.deck_id);
+  const opponentDecks = (allOpponentDecks ?? []).filter((deck) => !deck.is_hidden || deck.id === match.opponent_deck_id);
   return (
     <main className="deck-page-shell">
       <header className="dashboard-header">

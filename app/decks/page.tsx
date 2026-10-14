@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import LogoutButton from "../mypage/logout-button";
 import DeleteDeckButton from "./delete-button";
+import DeckVisibilityButton from "./visibility-button";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function DecksPage() {
@@ -12,7 +13,7 @@ export default async function DecksPage() {
 
   const { data: decks, error } = await supabase
     .from("decks")
-    .select("id, name, image_path, created_at")
+    .select("id, name, image_path, created_at, is_hidden")
     .order("created_at", { ascending: false });
 
   const deckCards = await Promise.all((decks ?? []).map(async (deck) => {
@@ -46,7 +47,7 @@ export default async function DecksPage() {
 
         {error ? (
           <section className="deck-page-message" role="alert">
-            デッキ一覧を読み込めませんでした。SupabaseのSQL Editorで <code>supabase/decks.sql</code> を実行してください。
+            デッキ一覧を読み込めませんでした。SupabaseのSQL Editorで <code>supabase/decks.sql</code> と <code>supabase/deck-visibility.sql</code> を実行してください。
           </section>
         ) : deckCards.length === 0 ? (
           <section className="deck-empty-card">
@@ -65,8 +66,11 @@ export default async function DecksPage() {
                   ) : <span aria-hidden="true">DM</span>}
                 </div>
                 <div className="deck-item-details">
-                  <div><p className="deck-item-label">MY DECK</p><h2>{deck.name}</h2></div>
-                  <DeleteDeckButton deckId={deck.id} imagePath={deck.image_path} />
+                  <div><p className="deck-item-label">MY DECK{deck.is_hidden ? " · 非表示" : ""}</p><h2>{deck.name}</h2></div>
+                  <div className="deck-item-controls">
+                    <DeckVisibilityButton deckId={deck.id} isHidden={deck.is_hidden} kind="own" />
+                    <DeleteDeckButton deckId={deck.id} imagePath={deck.image_path} />
+                  </div>
                 </div>
               </article>
             ))}

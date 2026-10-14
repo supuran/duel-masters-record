@@ -20,10 +20,12 @@ export default async function NewMatchPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/");
 
-  const [{ data: decks, error: decksError }, { data: opponentDecks, error: opponentsError }] = await Promise.all([
-    supabase.from("decks").select("id, name").order("created_at", { ascending: false }),
-    supabase.from("opponent_decks").select("id, name").order("name", { ascending: true }),
+  const [{ data: allDecks, error: decksError }, { data: allOpponentDecks, error: opponentsError }] = await Promise.all([
+    supabase.from("decks").select("id, name, is_hidden").eq("is_hidden", false).order("created_at", { ascending: false }),
+    supabase.from("opponent_decks").select("id, name, is_hidden").eq("is_hidden", false).order("name", { ascending: true }),
   ]);
+  const decks = allDecks ?? [];
+  const opponentDecks = allOpponentDecks ?? [];
 
   return (
     <main className="deck-page-shell">
@@ -44,14 +46,17 @@ export default async function NewMatchPage() {
           <h1>対戦を記録</h1>
           <p className="deck-form-intro">勝敗や先攻・後攻を記録して、戦績を振り返りましょう。</p>
           {decksError ? (
-            <p className="form-message error-message" role="alert">デッキ一覧を読み込めません。デッキ管理ページとSupabaseの設定を確認してください。</p>
+            <p className="form-message error-message" role="alert">デッキ一覧を読み込めません。Supabase SQL Editorで <code>supabase/decks.sql</code> と <code>supabase/deck-visibility.sql</code> を実行してください。</p>
           ) : !decks?.length ? (
             <div className="match-no-decks">
-              <p>対戦記録をつける前に、使用するデッキを登録してください。</p>
-              <Link className="deck-add-button" href="/decks/new">デッキを登録</Link>
+              <p>対戦登録に表示するデッキがありません。デッキ管理でデッキを登録するか、非表示設定を解除してください。</p>
+              <div className="match-no-decks-actions">
+                <Link className="deck-add-button" href="/decks/new">デッキを登録</Link>
+                <Link className="panel-link" href="/decks">デッキ管理で表示設定を確認</Link>
+              </div>
             </div>
           ) : opponentsError ? (
-            <p className="form-message error-message" role="alert">相手デッキ一覧を読み込めません。Supabase SQL Editorで最新の <code>supabase/matches.sql</code> を実行してください。</p>
+            <p className="form-message error-message" role="alert">相手デッキ一覧を読み込めません。Supabase SQL Editorで <code>supabase/matches.sql</code> と <code>supabase/deck-visibility.sql</code> を実行してください。</p>
           ) : (
             <MatchForm decks={decks} opponentDecks={opponentDecks ?? []} today={tokyoToday()} />
           )}

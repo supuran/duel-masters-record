@@ -5,9 +5,13 @@ create table if not exists public.opponent_decks (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
   name text not null check (char_length(trim(name)) between 1 and 40),
+  is_hidden boolean not null default false,
   created_at timestamptz not null default now(),
   constraint opponent_decks_user_id_name_key unique (user_id, name)
 );
+
+alter table public.opponent_decks
+  add column if not exists is_hidden boolean not null default false;
 
 alter table public.opponent_decks enable row level security;
 

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import LogoutButton from "../mypage/logout-button";
 import OpponentDeckDeleteButton from "./delete-button";
 import OpponentDeckForm from "./opponent-deck-form";
+import DeckVisibilityButton from "../decks/visibility-button";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function OpponentDecksPage() {
@@ -12,7 +13,7 @@ export default async function OpponentDecksPage() {
 
   const { data: decks, error } = await supabase
     .from("opponent_decks")
-    .select("id, name")
+    .select("id, name, is_hidden")
     .order("name", { ascending: true });
 
   return (
@@ -36,13 +37,19 @@ export default async function OpponentDecksPage() {
           <OpponentDeckForm />
           <div className="opponent-deck-list-heading"><h2>登録済み候補</h2><span>{decks?.length ?? 0}件</span></div>
           {error ? (
-            <p className="form-message error-message" role="alert">一覧を読み込めません。Supabase SQL Editorで最新の <code>supabase/matches.sql</code> を実行してください。</p>
+            <p className="form-message error-message" role="alert">一覧を読み込めません。Supabase SQL Editorで <code>supabase/matches.sql</code> と <code>supabase/deck-visibility.sql</code> を実行してください。</p>
           ) : !decks?.length ? (
             <p className="opponent-deck-empty">候補はまだありません。上の入力欄から登録してください。</p>
           ) : (
             <ul className="opponent-deck-list">
               {decks.map((deck) => (
-                <li key={deck.id}><span>{deck.name}</span><OpponentDeckDeleteButton deckId={deck.id} deckName={deck.name} /></li>
+                <li key={deck.id}>
+                  <span>{deck.name}{deck.is_hidden ? "（非表示）" : ""}</span>
+                  <span className="opponent-deck-row-controls">
+                    <DeckVisibilityButton deckId={deck.id} isHidden={deck.is_hidden} kind="opponent" />
+                    <OpponentDeckDeleteButton deckId={deck.id} deckName={deck.name} />
+                  </span>
+                </li>
               ))}
             </ul>
           )}

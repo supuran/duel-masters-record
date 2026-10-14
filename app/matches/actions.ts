@@ -6,6 +6,54 @@ import { createClient } from "@/utils/supabase/server";
 
 export type MatchActionState = { error: string };
 export type OpponentDeckActionState = { error: string; success: string };
+export type InlineOpponentDeckResult = { error: string; deck?: { id: string; name: string } };
+
+export async function registerOpponentDeckInline(nameValue: string): Promise<InlineOpponentDeckResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "ログイン状態を確認できません。再度ログインしてください。" };
+
+  const name = nameValue.trim();
+  if (!name || name.length > 40) return { error: "相手デッキ名は1〜40文字で入力してください。" };
+
+  const { data: existing, error: lookupError } = await supabase
+    .from("opponent_decks")
+    .select("id, name, is_hidden")
+    .eq("user_id", user.id)
+    .eq("name", name)
+    .maybeSingle();
+  if (lookupError) return { error: `候補を確認できません [${lookupError.code ?? "unknown"}]。` };
+  if (existing) {
+    if (existing.is_hidden) {
+      const { error: showError } = await supabase.from("opponent_decks").update({ is_hidden: false }).eq("id", existing.id).eq("user_id", user.id);
+      if (showError) return { error: `非表示設定を解除できません [${showError.code ?? "unknown"}]。` };
+    }
+    revalidatePath("/opponent-decks");
+    revalidatePath("/matches/new");
+    return { error: "", deck: { id: existing.id, name: existing.name } };
+  }
+
+  const { data, error } = await supabase
+    .from("opponent_decks")
+    .insert({ user_id: user.id, name })
+    .select("id, name")
+    .single();
+  if (error?.code === "23505") {
+    const { data: duplicate } = await supabase.from("opponent_decks").select("id, name, is_hidden").eq("user_id", user.id).eq("name", name).maybeSingle();
+    if (duplicate) {
+      if (duplicate.is_hidden) {
+        const { error: showError } = await supabase.from("opponent_decks").update({ is_hidden: false }).eq("id", duplicate.id).eq("user_id", user.id);
+        if (showError) return { error: `非表示設定を解除できません [${showError.code ?? "unknown"}]。` };
+      }
+      return { error: "", deck: { id: duplicate.id, name: duplicate.name } };
+    }
+  }
+  if (error || !data) return { error: `登録エラー [${error?.code ?? "unknown"}]: ${error?.message ?? "候補を登録できませんでした。"}` };
+
+  revalidatePath("/opponent-decks");
+  revalidatePath("/matches/new");
+  return { error: "", deck: data };
+}
 
 export async function createMatchAction(
   _previousState: MatchActionState,
@@ -35,21 +83,23 @@ export async function createMatchAction(
 
   const { data: deck, error: deckError } = await supabase
     .from("decks")
-    .select("id, name")
+    .select("id, name, is_hidden")
     .eq("id", deckId)
     .eq("user_id", user.id)
     .single();
   if (deckError || !deck) return { error: "選択したデッキを確認できません。デッキ一覧を更新してください。" };
+  if (deck.is_hidden) return { error: "選択したデッキは対戦登録のプルダウンで非表示です。デッキ管理で表示設定を変更してください。" };
 
   let opponentDeck: { id: string; name: string } | null = null;
   if (opponentDeckId) {
     const { data, error } = await supabase
       .from("opponent_decks")
-      .select("id, name")
+      .select("id, name, is_hidden")
       .eq("id", opponentDeckId)
       .eq("user_id", user.id)
       .single();
     if (error || !data) return { error: "選択した相手デッキを確認できません。候補一覧を更新してください。" };
+    if (data.is_hidden) return { error: "選択した相手デッキはプルダウンで非表示です。相手デッキ候補の管理で表示設定を変更してください。" };
     opponentDeck = data;
   }
 

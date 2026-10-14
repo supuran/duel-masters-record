@@ -6,11 +6,14 @@ create table if not exists public.decks (
   user_id uuid not null references auth.users (id) on delete cascade,
   name text not null check (char_length(trim(name)) between 1 and 40),
   image_path text,
+  is_hidden boolean not null default false,
   created_at timestamptz not null default now()
 );
 
 alter table public.decks
   add column if not exists image_path text;
+alter table public.decks
+  add column if not exists is_hidden boolean not null default false;
 
 create index if not exists decks_user_id_created_at_idx
   on public.decks (user_id, created_at desc);

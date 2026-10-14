@@ -293,6 +293,11 @@ button, input { font: inherit; }
 .deck-item-image > span { font: 900 31px Georgia, serif; letter-spacing: .08em; }
 .deck-item-image img { object-fit: cover; }
 .deck-item-details { min-height: 84px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 17px; }
+.deck-item-controls { display: flex; align-items: center; justify-content: flex-end; gap: 7px; flex-wrap: wrap; }
+.deck-visibility-wrap { position: relative; display: inline-flex; }
+.deck-visibility-button { min-height: 30px; padding: 0 9px; border: 1px solid #e8e6df; border-radius: 7px; background: #fff; color: #75633f; font: inherit; font-size: 9px; cursor: pointer; }
+.deck-visibility-button:disabled { opacity: .6; cursor: wait; }
+.deck-visibility-error { position: absolute; z-index: 3; top: 100%; right: 0; width: max-content; max-width: 220px; color: #a4473d; font-size: 9px; }
 .deck-item-label { margin: 0 0 5px; color: #b28c42; font-size: 8px; font-weight: 800; letter-spacing: .17em; }
 .deck-item-details h2 { overflow: hidden; max-width: 210px; margin: 0; color: #2d3340; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
 .deck-delete-wrap { display: grid; justify-items: end; gap: 4px; }
@@ -426,6 +431,15 @@ button, input { font: inherit; }
 }
 .manage-opponent-decks-link { width: max-content; margin-top: 2px; color: #8a6b2d; font-size: 9px; text-decoration: none; }
 .manage-opponent-decks-link:hover { text-decoration: underline; }
+.match-add-opponent-deck-toggle { width: max-content; margin-top: 5px; padding: 0; border: 0; background: transparent; color: #8a6b2d; font: inherit; font-size: 10px; cursor: pointer; }
+.match-inline-opponent-deck { display: grid; gap: 8px; margin-top: 7px; }
+.match-inline-opponent-deck input { width: 100%; min-width: 0; min-height: 40px; padding: 0 11px; border: 1px solid #e2e1dc; border-radius: 7px; background: #fff; color: #242936; font: inherit; font-size: 11px; }
+.match-inline-opponent-deck > div { display: flex; align-items: center; gap: 10px; }
+.match-inline-opponent-deck .submit-button { min-height: 35px; padding: 0 12px; font-size: 10px; }
+.match-inline-cancel { padding: 6px; border: 0; background: transparent; color: #737884; font: inherit; font-size: 10px; cursor: pointer; }
+.match-inline-feedback { display: block; margin-top: 5px; font-size: 10px; line-height: 1.6; }
+.match-inline-feedback.error-message { color: #a4473d; }
+.match-inline-feedback.success-message { color: #41744a; }
 .match-form .match-opponent-select { width: 100%; min-height: 46px; padding: 0 13px; border: 1px solid #e2e1dc; border-radius: 8px; outline: none; background: #fff; color: #242936; font-size: 12px; }
 .match-form .match-opponent-select:focus { border-color: #b8964e; box-shadow: 0 0 0 3px #b8964e1c; }
 .opponent-deck-page-content .deck-form-card h1 { font-size: 24px; }
@@ -443,6 +457,7 @@ button, input { font: inherit; }
 .opponent-deck-empty { margin: 0; padding: 20px 4px; color: #9296a0; font-size: 10px; }
 .opponent-deck-list { display: grid; margin: 0; padding: 0; list-style: none; }
 .opponent-deck-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 54px; padding: 8px 4px; border-bottom: 1px solid #f0eee9; color: #454a55; font-size: 11px; }
+.opponent-deck-row-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .opponent-deck-delete-wrap { display: flex; align-items: center; gap: 8px; }
 .opponent-deck-delete-wrap .deck-delete-error { max-width: 220px; }
 .opponent-deck-list .deck-delete-button { font-size: 9px; }
