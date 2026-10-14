@@ -385,7 +385,7 @@ button, input { font: inherit; }
 .match-no-decks p { margin: 0; }
 .match-success-message { margin: 0 0 18px; padding: 12px 15px; border: 1px solid #dcebdd; border-radius: 8px; background: #f0f8f0; color: #41744a; font-size: 11px; }
 .match-filter-form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)) auto; align-items: end; gap: 11px; margin: 0 0 18px; padding: 15px; border: 1px solid #e8e6df; border-radius: 10px; background: #fff; }
-.match-filter-field { display: grid; min-width: 0; gap: 6px; color: #666c78; font-size: 9px; font-weight: 700; }
+.match-filter-field { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 6px; color: #666c78; font-size: 9px; font-weight: 700; }
 .match-filter-field input, .match-filter-field select { box-sizing: border-box; width: 100%; max-width: 100%; min-width: 0; height: 38px; padding: 0 9px; border: 1px solid #e2e1dc; border-radius: 7px; background: #fff; color: #242936; font-size: 10px; }
 .match-filter-actions { display: flex; align-items: center; gap: 10px; }
 .match-filter-actions .submit-button { min-height: 38px; padding: 0 15px; font-size: 10px; }
@@ -416,7 +416,7 @@ button, input { font: inherit; }
   .match-opponent-grid { grid-template-columns: 1fr; gap: 18px; }
   .match-filter-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .match-date-field { grid-column: 1 / -1; }
-  .match-date-field input { font-size: 16px; }
+  .match-date-field input { display: block; inline-size: 100%; min-inline-size: 0; max-inline-size: 100%; font-size: 16px; }
   .match-filter-actions { grid-column: 1 / -1; justify-content: flex-end; }
   .match-history-card { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 15px; }
   .match-history-date { display: flex; justify-content: space-between; }
