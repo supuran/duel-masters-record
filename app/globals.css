@@ -416,7 +416,7 @@ button, input { font: inherit; }
   .match-opponent-grid { grid-template-columns: 1fr; gap: 18px; }
   .match-filter-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .match-date-field { grid-column: 1 / -1; }
-  .match-date-field input { display: block; inline-size: 100%; min-inline-size: 0; max-inline-size: 100%; font-size: 16px; }
+  .match-date-field input { display: block; width: 94%; inline-size: 94%; min-inline-size: 0; max-inline-size: 94%; font-size: 16px; }
   .match-filter-actions { grid-column: 1 / -1; justify-content: flex-end; }
   .match-history-card { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 15px; }
   .match-history-date { display: flex; justify-content: space-between; }
