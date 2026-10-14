@@ -20,7 +20,7 @@ export default async function EditMatchPage({ params }: { params: Promise<{ id: 
   const [{ data: match }, { data: allDecks, error: decksError }, { data: allOpponentDecks, error: opponentsError }] = await Promise.all([
     supabase.from("matches").select("id, deck_id, opponent_deck_id, opponent_name, result, turn_order, played_at, memo, format").eq("id", id).eq("user_id", user.id).maybeSingle(),
     supabase.from("decks").select("id, name, format, is_hidden").order("created_at", { ascending: false }),
-    supabase.from("opponent_decks").select("id, name, is_hidden").order("name", { ascending: true }),
+    supabase.from("opponent_decks").select("id, name, format, is_hidden").order("name", { ascending: true }),
   ]);
   if (!match) notFound();
   const decks = (allDecks ?? []).filter((deck) => !deck.is_hidden || deck.id === match.deck_id);

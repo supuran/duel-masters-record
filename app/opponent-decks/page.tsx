@@ -13,7 +13,7 @@ export default async function OpponentDecksPage() {
 
   const { data: decks, error } = await supabase
     .from("opponent_decks")
-    .select("id, name, is_hidden")
+    .select("id, name, format, is_hidden")
     .order("name", { ascending: true });
 
   return (
@@ -37,14 +37,14 @@ export default async function OpponentDecksPage() {
           <OpponentDeckForm />
           <div className="opponent-deck-list-heading"><h2>登録済み候補</h2><span>{decks?.length ?? 0}件</span></div>
           {error ? (
-            <p className="form-message error-message" role="alert">一覧を読み込めません。Supabase SQL Editorで <code>supabase/matches.sql</code> と <code>supabase/deck-visibility.sql</code> を実行してください。</p>
+            <p className="form-message error-message" role="alert">一覧を読み込めません。Supabase SQL Editorで <code>supabase/opponent-deck-formats.sql</code> を実行してください。</p>
           ) : !decks?.length ? (
             <p className="opponent-deck-empty">候補はまだありません。上の入力欄から登録してください。</p>
           ) : (
             <ul className="opponent-deck-list">
               {decks.map((deck) => (
                 <li key={deck.id}>
-                  <span>{deck.name}{deck.is_hidden ? "（非表示）" : ""}</span>
+                  <span>{deck.name}（{deck.format ?? "ND"}）{deck.is_hidden ? "（非表示）" : ""}</span>
                   <span className="opponent-deck-row-controls">
                     <DeckVisibilityButton deckId={deck.id} isHidden={deck.is_hidden} kind="opponent" />
                     <OpponentDeckDeleteButton deckId={deck.id} deckName={deck.name} />

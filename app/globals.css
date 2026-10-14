@@ -466,6 +466,7 @@ button, input { font: inherit; }
 .opponent-deck-form > .field-label { color: #252a36; font-size: 11px; font-weight: 700; }
 .opponent-deck-form-row { display: flex; gap: 9px; }
 .opponent-deck-form-row input { width: 100%; min-width: 0; min-height: 43px; padding: 0 12px; border: 1px solid #e2e1dc; border-radius: 7px; outline: none; background: #fff; color: #242936; font-size: 11px; }
+.opponent-deck-form-row select { min-width: 76px; min-height: 43px; padding: 0 9px; border: 1px solid #e2e1dc; border-radius: 7px; background: #fff; color: #242936; font-size: 11px; }
 .opponent-deck-form-row input:focus { border-color: #b8964e; box-shadow: 0 0 0 3px #b8964e1c; }
 .opponent-deck-form-row .submit-button { min-height: 43px; flex: 0 0 auto; padding: 0 14px; font-size: 10px; }
 .opponent-deck-form .field-hint { margin-top: -4px; }

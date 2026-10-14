@@ -22,7 +22,7 @@ export default async function NewMatchPage() {
 
   const [{ data: allDecks, error: decksError }, { data: allOpponentDecks, error: opponentsError }] = await Promise.all([
     supabase.from("decks").select("id, name, format, is_hidden").eq("is_hidden", false).order("created_at", { ascending: false }),
-    supabase.from("opponent_decks").select("id, name, is_hidden").eq("is_hidden", false).order("name", { ascending: true }),
+    supabase.from("opponent_decks").select("id, name, format, is_hidden").eq("is_hidden", false).order("name", { ascending: true }),
   ]);
   const decks = allDecks ?? [];
   const opponentDecks = allOpponentDecks ?? [];
@@ -56,7 +56,7 @@ export default async function NewMatchPage() {
               </div>
             </div>
           ) : opponentsError ? (
-            <p className="form-message error-message" role="alert">相手デッキ一覧を読み込めません。Supabase SQL Editorで <code>supabase/matches.sql</code>、<code>supabase/deck-visibility.sql</code>、<code>supabase/duel-formats.sql</code> を実行してください。</p>
+            <p className="form-message error-message" role="alert">相手デッキ一覧を読み込めません。Supabase SQL Editorで <code>supabase/matches.sql</code>、<code>supabase/deck-visibility.sql</code>、<code>supabase/duel-formats.sql</code>、<code>supabase/opponent-deck-formats.sql</code> を実行してください。</p>
           ) : (
             <MatchForm decks={decks} opponentDecks={opponentDecks ?? []} today={tokyoToday()} />
           )}

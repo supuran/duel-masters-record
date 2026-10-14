@@ -10,6 +10,11 @@ function percentage(part: number | null, whole: number | null) {
   return String(Math.round((part / whole) * 100));
 }
 
+function formatMatchDate(value: string | null) {
+  if (!value) return "日付未設定";
+  return value.slice(0, 10).replaceAll("-", "/");
+}
+
 function tokyoOneMonthAgo() {
   const parts = new Intl.DateTimeFormat("en", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
   const value = (type: string) => Number(parts.find((item) => item.type === type)?.value ?? 0);
@@ -160,7 +165,7 @@ export default async function MyPage() {
               <div className="dashboard-recent-list">
                 {recentMatches.map((match) => (
                   <div className="dashboard-recent-row" key={match.id}>
-                    <div><strong>{match.deck_name} · {match.format ?? "ND"}</strong><small>{match.played_at}</small></div>
+                    <div><strong>{match.deck_name} · {match.format ?? "ND"}</strong><small>{formatMatchDate(match.played_at)}</small></div>
                     <span className={`match-result-badge ${match.result}`}>{outcomeLabels[match.result] ?? match.result}</span>
                   </div>
                 ))}

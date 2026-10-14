@@ -5,6 +5,7 @@ import { useActionState, useState, useTransition } from "react";
 import { createMatchAction, registerOpponentDeckInline, type MatchActionState } from "../actions";
 
 type DeckOption = { id: string; name: string; format?: string };
+type OpponentDeckOption = { id: string; name: string; format?: string };
 
 export default function MatchForm({
   decks,
@@ -14,13 +15,15 @@ export default function MatchForm({
   initial,
 }: {
   decks: DeckOption[];
-  opponentDecks: DeckOption[];
+  opponentDecks: OpponentDeckOption[];
   today: string;
   action?: typeof createMatchAction;
   initial?: { id: string; deck_id: string | null; opponent_deck_id: string | null; opponent_name: string | null; result: string; turn_order: string; played_at: string | null; memo: string | null; format: string | null };
 }) {
   const initialState: MatchActionState = { error: "" };
   const [state, formAction, isPending] = useActionState(action, initialState);
+  const [format, setFormat] = useState<"ND" | "AD">((initial?.format === "AD" ? "AD" : "ND"));
+  const [selectedDeckId, setSelectedDeckId] = useState(initial?.deck_id ?? "");
   const [availableOpponentDecks, setAvailableOpponentDecks] = useState(opponentDecks);
   const [selectedOpponentDeckId, setSelectedOpponentDeckId] = useState(initial?.opponent_deck_id ?? "");
   const [showNewOpponentDeck, setShowNewOpponentDeck] = useState(false);
@@ -28,12 +31,19 @@ export default function MatchForm({
   const [inlineDeckError, setInlineDeckError] = useState("");
   const [inlineDeckSuccess, setInlineDeckSuccess] = useState("");
   const [isAddingOpponentDeck, startAddingOpponentDeck] = useTransition();
+  const visibleDecks = decks.filter((deck) => format === "AD" || deck.format !== "AD" || deck.id === initial?.deck_id);
+
+  function changeFormat(nextFormat: "ND" | "AD") {
+    setFormat(nextFormat);
+    const selectedDeck = decks.find((deck) => deck.id === selectedDeckId);
+    if (nextFormat === "ND" && selectedDeck?.format === "AD") setSelectedDeckId("");
+  }
 
   function addOpponentDeck() {
     setInlineDeckError("");
     setInlineDeckSuccess("");
     startAddingOpponentDeck(async () => {
-      const result = await registerOpponentDeckInline(newOpponentDeckName);
+      const result = await registerOpponentDeckInline(newOpponentDeckName, format);
       if (result.error || !result.deck) {
         setInlineDeckError(result.error || "相手デッキを登録できませんでした。");
         return;
@@ -57,7 +67,7 @@ export default function MatchForm({
 
       <label className="field-label">
         フォーマット
-        <select defaultValue={initial?.format ?? "ND"} name="format" required>
+        <select onChange={(event) => changeFormat(event.target.value as "ND" | "AD")} value={format} name="format" required>
           <option value="ND">ND（New Division）</option>
           <option value="AD">AD（All Division）</option>
         </select>
@@ -65,9 +75,9 @@ export default function MatchForm({
 
       <label className="field-label">
         使用デッキ
-        <select defaultValue={initial?.deck_id ?? ""} name="deck_id" required>
+        <select onChange={(event) => setSelectedDeckId(event.target.value)} value={selectedDeckId} name="deck_id" required>
           <option disabled value="">デッキを選択してください</option>
-          {decks.map((deck) => <option key={deck.id} value={deck.id}>{deck.name}（{deck.format ?? "ND"}）</option>)}
+          {visibleDecks.map((deck) => <option key={deck.id} value={deck.id}>{deck.name}（{deck.format ?? "ND"}）</option>)}
         </select>
       </label>
 
@@ -96,7 +106,7 @@ export default function MatchForm({
           <div className="match-field-heading"><label htmlFor="opponent-deck-select">相手のデッキ</label><span className="optional-label">任意</span></div>
           <select className="match-opponent-select" onChange={(event) => setSelectedOpponentDeckId(event.target.value)} value={selectedOpponentDeckId} id="opponent-deck-select" name="opponent_deck_id">
             <option value="">未選択・不明</option>
-            {availableOpponentDecks.map((deck) => <option key={deck.id} value={deck.id}>{deck.name}</option>)}
+            {availableOpponentDecks.map((deck) => <option key={deck.id} value={deck.id}>{deck.name}（{deck.format ?? "ND"}）</option>)}
           </select>
           {!showNewOpponentDeck ? (
             <button className="match-add-opponent-deck-toggle" onClick={() => { setInlineDeckError(""); setShowNewOpponentDeck(true); }} type="button">＋ 新しい相手デッキを登録</button>

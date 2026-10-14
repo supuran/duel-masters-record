@@ -5,13 +5,23 @@ create table if not exists public.opponent_decks (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
   name text not null check (char_length(trim(name)) between 1 and 40),
+  format text not null default 'ND' check (format in ('ND', 'AD')),
   is_hidden boolean not null default false,
   created_at timestamptz not null default now(),
-  constraint opponent_decks_user_id_name_key unique (user_id, name)
+  constraint opponent_decks_user_id_name_format_key unique (user_id, name, format)
 );
 
 alter table public.opponent_decks
   add column if not exists is_hidden boolean not null default false;
+alter table public.opponent_decks
+  add column if not exists format text not null default 'ND';
+alter table public.opponent_decks drop constraint if exists opponent_decks_user_id_name_key;
+alter table public.opponent_decks drop constraint if exists opponent_decks_user_id_name_format_key;
+alter table public.opponent_decks
+  add constraint opponent_decks_user_id_name_format_key unique (user_id, name, format);
+alter table public.opponent_decks drop constraint if exists opponent_decks_format_check;
+alter table public.opponent_decks
+  add constraint opponent_decks_format_check check (format in ('ND', 'AD')) not valid;
 
 alter table public.opponent_decks enable row level security;
 

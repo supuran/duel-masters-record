@@ -6,21 +6,24 @@ import { createClient } from "@/utils/supabase/server";
 
 export type MatchActionState = { error: string };
 export type OpponentDeckActionState = { error: string; success: string };
-export type InlineOpponentDeckResult = { error: string; deck?: { id: string; name: string } };
+export type InlineOpponentDeckResult = { error: string; deck?: { id: string; name: string; format: string } };
 
-export async function registerOpponentDeckInline(nameValue: string): Promise<InlineOpponentDeckResult> {
+export async function registerOpponentDeckInline(nameValue: string, formatValue: string): Promise<InlineOpponentDeckResult> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "ログイン状態を確認できません。再度ログインしてください。" };
 
   const name = nameValue.trim();
   if (!name || name.length > 40) return { error: "相手デッキ名は1〜40文字で入力してください。" };
+  if (!["ND", "AD"].includes(formatValue)) return { error: "フォーマットはNDまたはADを選択してください。" };
+  const format = formatValue;
 
   const { data: existing, error: lookupError } = await supabase
     .from("opponent_decks")
-    .select("id, name, is_hidden")
+    .select("id, name, format, is_hidden")
     .eq("user_id", user.id)
     .eq("name", name)
+    .eq("format", format)
     .maybeSingle();
   if (lookupError) return { error: `候補を確認できません [${lookupError.code ?? "unknown"}]。` };
   if (existing) {
@@ -30,22 +33,22 @@ export async function registerOpponentDeckInline(nameValue: string): Promise<Inl
     }
     revalidatePath("/opponent-decks");
     revalidatePath("/matches/new");
-    return { error: "", deck: { id: existing.id, name: existing.name } };
+    return { error: "", deck: { id: existing.id, name: existing.name, format: existing.format } };
   }
 
   const { data, error } = await supabase
     .from("opponent_decks")
-    .insert({ user_id: user.id, name })
-    .select("id, name")
+    .insert({ user_id: user.id, name, format })
+    .select("id, name, format")
     .single();
   if (error?.code === "23505") {
-    const { data: duplicate } = await supabase.from("opponent_decks").select("id, name, is_hidden").eq("user_id", user.id).eq("name", name).maybeSingle();
+    const { data: duplicate } = await supabase.from("opponent_decks").select("id, name, format, is_hidden").eq("user_id", user.id).eq("name", name).eq("format", format).maybeSingle();
     if (duplicate) {
       if (duplicate.is_hidden) {
         const { error: showError } = await supabase.from("opponent_decks").update({ is_hidden: false }).eq("id", duplicate.id).eq("user_id", user.id);
         if (showError) return { error: `非表示設定を解除できません [${showError.code ?? "unknown"}]。` };
       }
-      return { error: "", deck: { id: duplicate.id, name: duplicate.name } };
+      return { error: "", deck: { id: duplicate.id, name: duplicate.name, format: duplicate.format } };
     }
   }
   if (error || !data) return { error: `登録エラー [${error?.code ?? "unknown"}]: ${error?.message ?? "候補を登録できませんでした。"}` };
@@ -85,18 +88,19 @@ export async function createMatchAction(
 
   const { data: deck, error: deckError } = await supabase
     .from("decks")
-    .select("id, name, is_hidden")
+    .select("id, name, format, is_hidden")
     .eq("id", deckId)
     .eq("user_id", user.id)
     .single();
   if (deckError || !deck) return { error: "選択したデッキを確認できません。デッキ一覧を更新してください。" };
   if (deck.is_hidden) return { error: "選択したデッキは対戦登録のプルダウンで非表示です。デッキ管理で表示設定を変更してください。" };
+  if (format === "ND" && deck.format !== "ND") return { error: "NDの対戦にはNDデッキを選択してください。" };
 
   let opponentDeck: { id: string; name: string } | null = null;
   if (opponentDeckId) {
     const { data, error } = await supabase
       .from("opponent_decks")
-      .select("id, name, is_hidden")
+      .select("id, name, format, is_hidden")
       .eq("id", opponentDeckId)
       .eq("user_id", user.id)
       .single();
@@ -152,8 +156,9 @@ export async function updateMatchAction(
   if (!/^\d{4}-\d{2}-\d{2}$/.test(playedAt) || Number.isNaN(Date.parse(`${playedAt}T00:00:00Z`))) return { error: "対戦日を入力してください。" };
   if (opponentName.length > 40 || memo.length > 500) return { error: "対戦相手は40文字以内、メモは500文字以内で入力してください。" };
 
-  const { data: deck, error: deckError } = await supabase.from("decks").select("id, name").eq("id", deckId).eq("user_id", user.id).single();
+  const { data: deck, error: deckError } = await supabase.from("decks").select("id, name, format").eq("id", deckId).eq("user_id", user.id).single();
   if (deckError || !deck) return { error: "選択したデッキを確認できません。デッキ一覧を更新してください。" };
+  if (format === "ND" && deck.format !== "ND") return { error: "NDの対戦にはNDデッキを選択してください。" };
   let opponentDeck: { id: string; name: string } | null = null;
   if (opponentDeckId) {
     const { data, error } = await supabase.from("opponent_decks").select("id, name").eq("id", opponentDeckId).eq("user_id", user.id).single();
@@ -202,10 +207,12 @@ export async function createOpponentDeckAction(
   if (!user) return { error: "ログイン状態を確認できません。再度ログインしてください。", success: "" };
 
   const name = String(formData.get("name") ?? "").trim();
+  const format = String(formData.get("format") ?? "ND");
   if (!name || name.length > 40) return { error: "相手デッキ名は1〜40文字で入力してください。", success: "" };
+  if (!["ND", "AD"].includes(format)) return { error: "フォーマットはNDまたはADを選択してください。", success: "" };
 
-  const { error } = await supabase.from("opponent_decks").insert({ user_id: user.id, name });
-  if (error?.code === "23505") return { error: "この相手デッキ名はすでに登録されています。", success: "" };
+  const { error } = await supabase.from("opponent_decks").insert({ user_id: user.id, name, format });
+  if (error?.code === "23505") return { error: "この相手デッキ名とフォーマットの組み合わせはすでに登録されています。", success: "" };
   if (error) return { error: `登録エラー [${error.code ?? "unknown"}]: ${error.message}`, success: "" };
 
   revalidatePath("/opponent-decks");
