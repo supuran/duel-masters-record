@@ -75,10 +75,6 @@ export default async function MyPage() {
             <p className="eyebrow">PLAYER DASHBOARD</p>
             <h1>{username} さんの戦績</h1>
             <p>対戦を記録すると、ここにあなたの戦いのデータが集まります。</p>
-            <div className="dashboard-actions">
-              <Link className="dashboard-record-button" href="/matches/new">＋ 対戦を記録</Link>
-              <Link className="dashboard-history-link" href="/matches">履歴を見る →</Link>
-            </div>
           </div>
           <div className="welcome-emblem" aria-hidden="true"><span>DM</span><i>RECORD</i></div>
         </section>
