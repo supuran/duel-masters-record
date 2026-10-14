@@ -106,6 +106,7 @@ export async function createMatchAction(
       .single();
     if (error || !data) return { error: "選択した相手デッキを確認できません。候補一覧を更新してください。" };
     if (data.is_hidden) return { error: "選択した相手デッキはプルダウンで非表示です。相手デッキ候補の管理で表示設定を変更してください。" };
+    if (format === "ND" && data.format !== "ND") return { error: "NDの対戦にはNDの相手デッキを選択してください。" };
     opponentDeck = data;
   }
 
@@ -161,8 +162,9 @@ export async function updateMatchAction(
   if (format === "ND" && deck.format !== "ND") return { error: "NDの対戦にはNDデッキを選択してください。" };
   let opponentDeck: { id: string; name: string } | null = null;
   if (opponentDeckId) {
-    const { data, error } = await supabase.from("opponent_decks").select("id, name").eq("id", opponentDeckId).eq("user_id", user.id).single();
+    const { data, error } = await supabase.from("opponent_decks").select("id, name, format").eq("id", opponentDeckId).eq("user_id", user.id).single();
     if (error || !data) return { error: "選択した相手デッキを確認できません。候補一覧を更新してください。" };
+    if (format === "ND" && data.format !== "ND") return { error: "NDの対戦にはNDの相手デッキを選択してください。" };
     opponentDeck = data;
   }
 
