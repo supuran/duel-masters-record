@@ -196,7 +196,8 @@ button, input { font: inherit; }
 }
 
 @media (max-width: 380px) {
-  .dashboard-main-nav a:first-child { display: none; }
+  .dashboard-main-nav { gap: 5px; margin-right: 5px; }
+  .dashboard-main-nav a { font-size: 8px; }
   .player-card { align-items: flex-start; flex-direction: column; }
   .friend-request-control { justify-items: start; }
   .player-profile-heading { flex-wrap: wrap; padding: 18px; }

@@ -56,10 +56,8 @@ export default async function MyPage() {
           <span>DUEL LOG<small>戦績管理</small></span>
         </Link>
         <nav className="dashboard-main-nav" aria-label="メインメニュー">
-          <Link href="/decks">デッキ管理</Link>
-          <Link href="/players">ユーザー検索</Link>
-          <Link href="/friends">フレンド</Link>
           <Link href="/settings/profile">プロフィール設定</Link>
+          <Link href="/friends">フレンド</Link>
         </nav>
         <div className="dashboard-user">
           <Link aria-label="ユーザーアイコンを設定" className="user-avatar-link" href="/settings/profile">
