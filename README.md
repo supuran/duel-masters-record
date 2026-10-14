@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# デュエマ戦績管理｜DUEL LOG
 
-## Getting Started
+デュエル・マスターズ プレイス（デュエプレ）の対戦結果や使用デッキを記録し、戦績を振り返るWebアプリです。
 
-First, run the development server:
+## アプリ
+
+- 公開URL: [https://record-rho-flame.vercel.app](https://record-rho-flame.vercel.app)
+- GitHub: [supuran/duel-masters-record](https://github.com/supuran/duel-masters-record)
+
+## 主な機能
+
+- メールアドレスとパスワードによる新規登録・ログイン
+- マイページで総試合数、勝率、先攻勝率、後攻勝率を表示
+- 直近1か月のデッキ使用割合をND／AD別の円グラフで表示
+- デッキの登録（画像・ND／AD設定）、削除、対戦候補への表示／非表示
+- 対戦記録の登録・編集・削除
+- ND対戦ではNDデッキのみ、AD対戦ではND／ADデッキを使用デッキ・相手デッキとして選択
+- 日付、勝敗、使用デッキによる対戦履歴の検索
+- 相手デッキ候補の登録・削除・表示／非表示と、ND／ADフォーマット設定
+- ユーザー名検索、プロフィール閲覧、フレンド申請・承認・拒否
+- 承認済みフレンド間でプロフィール、デッキ、戦績を閲覧
+
+## 使用技術
+
+- Next.js 16（App Router）
+- React 19 / TypeScript
+- Supabase Auth、Postgres、Storage
+- Vercel
+
+## ローカルで起動する
+
+```bash
+npm install
+```
+
+プロジェクト直下に `.env.local` を作成し、SupabaseのProject URLとPublishable Keyを設定します。
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable-key>
+```
+
+SupabaseのSQL Editorで、次のSQLファイルを順番に実行してください。
+
+1. `supabase/profiles.sql`
+2. `supabase/decks.sql`
+3. `supabase/matches.sql`
+4. `supabase/deck-visibility.sql`
+5. `supabase/duel-formats.sql`
+6. `supabase/opponent-deck-formats.sql`
+7. `supabase/friends.sql`
+8. `supabase/avatars.sql`
+
+メール認証を使う場合は、Supabase AuthのURL ConfigurationにローカルURL（`http://localhost:3000`）と公開URLを設定してください。認証コールバックのパスは `/auth/callback` です。
+
+開発サーバーを起動します。
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザーで [http://localhost:3000](http://localhost:3000) を開きます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## チェック
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npm run build
+```
