@@ -40,7 +40,7 @@ export default async function PlayersPage({ searchParams }: { searchParams: Prom
   return (
     <main className="deck-page-shell">
       <header className="dashboard-header"><Link className="dashboard-brand" href="/mypage"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link><div className="dashboard-user"><Link className="back-to-dashboard" href="/friends">フレンド</Link><LogoutButton /></div></header>
-      <div className="deck-page-content">
+      <div className="deck-page-content"><Link className="deck-back-link" href="/menu">← メインメニューへ戻る</Link>
         <div className="deck-page-title-row"><div><p className="eyebrow">PLAYERS</p><h1>ユーザー検索</h1><p>ユーザー名で検索して、プロフィールを見たりフレンド申請を送れます。</p></div></div>
         <form action="/players" className="player-search-form"><label htmlFor="player-search">ユーザー名</label><div><input autoComplete="off" id="player-search" maxLength={20} minLength={2} name="q" placeholder="ユーザー名を入力" defaultValue={q} /><button className="submit-button" type="submit">検索</button></div><small>2〜20文字で検索できます。</small></form>
         {profileError ? <p className="deck-page-message" role="alert">プロフィールを読み込めません。Supabase SQL Editorで <code>supabase/profiles.sql</code> と <code>supabase/friends.sql</code> を実行してください。</p>

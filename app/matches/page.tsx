@@ -56,6 +56,7 @@ export default async function MatchesPage({
         </div>
       </header>
       <div className="deck-page-content">
+        <Link className="deck-back-link" href="/menu">← メインメニューへ戻る</Link>
         <div className="deck-page-title-row">
           <div><p className="eyebrow">MATCH HISTORY</p><h1>対戦履歴</h1><p>記録した試合を振り返りましょう。</p></div>
           <Link className="deck-add-button" href="/matches/new"><span aria-hidden="true">＋</span> 対戦を記録</Link>

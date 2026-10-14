@@ -69,6 +69,7 @@ export default async function MyPage() {
       </header>
 
       <div className="dashboard-content">
+        <Link className="deck-back-link" href="/menu">← メインメニューへ戻る</Link>
         <section className="dashboard-welcome">
           <div>
             <p className="eyebrow">PLAYER DASHBOARD</p>

@@ -38,6 +38,7 @@ export default async function DecksPage() {
       </header>
 
       <div className="deck-page-content">
+        <Link className="deck-back-link" href="/menu">← メインメニューへ戻る</Link>
         <div className="deck-page-title-row">
           <div><p className="eyebrow">MY COLLECTION</p><h1>デッキ管理</h1><p>対戦で使うデッキを登録しておきましょう。</p></div>
           <Link className="deck-add-button" href="/decks/new"><span aria-hidden="true">＋</span> デッキを登録</Link>
