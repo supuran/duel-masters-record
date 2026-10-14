@@ -68,7 +68,7 @@ button, input { font: inherit; }
 .home-header { height: 84px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e3e1dc; }
 .home-brand { color: #182136; font-size: 14px; font-weight: 900; letter-spacing: .12em; text-decoration: none; }
 .home-brand span { margin-left: 10px; color: #898d96; font-size: 11px; font-weight: 500; letter-spacing: 0; }
-.logout-button { padding: 9px 15px; border: 1px solid #d9d8d3; border-radius: 7px; background: #fff; color: #4f5561; cursor: pointer; font-size: 12px; }
+.logout-button { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; min-width: max-content; padding: 9px 15px; border: 1px solid #d9d8d3; border-radius: 7px; background: #fff; color: #4f5561; cursor: pointer; font-size: 12px; line-height: 1.2; white-space: nowrap; writing-mode: horizontal-tb; }
 .welcome-card { max-width: 850px; margin: 70px auto; padding: clamp(28px, 5vw, 54px); border: 1px solid #e7e4dc; border-radius: 16px; background: #fff; box-shadow: 0 18px 50px #252a3510; }
 .welcome-card h1 { margin: 0 0 12px; color: #182136; font-size: clamp(24px, 4vw, 36px); }
 .welcome-card > p:not(.eyebrow) { color: #737984; font-size: 14px; line-height: 1.8; }
@@ -98,7 +98,7 @@ button, input { font: inherit; }
 .dashboard-brand { display: flex; align-items: center; gap: 11px; color: #192239; font-size: 13px; font-weight: 900; letter-spacing: .14em; text-decoration: none; }
 .dashboard-brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid #c6a04d; border-radius: 11px 4px 11px 4px; color: #a67d2f; font: 800 20px Georgia, serif; transform: rotate(-4deg); }
 .dashboard-brand small { display: block; margin-top: 3px; color: #8d9098; font-size: 9px; font-weight: 500; letter-spacing: .08em; }
-.dashboard-user { display: flex; align-items: center; gap: 11px; }
+.dashboard-user { display: flex; flex: 0 0 auto; align-items: center; gap: 11px; white-space: nowrap; }
 .user-avatar { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: #efe8d6; color: #876526; font-size: 13px; font-weight: 800; object-fit: cover; }
 .user-avatar-link { display: inline-flex; flex: 0 0 auto; border-radius: 50%; text-decoration: none; }
 .user-avatar-link:focus-visible { outline: 2px solid #b8964e; outline-offset: 3px; }
