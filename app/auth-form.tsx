@@ -85,7 +85,7 @@ export default function AuthForm({ mode, initialError }: AuthFormProps) {
       }
 
       if (data.session) {
-        router.replace("/mypage");
+        router.replace("/menu");
         router.refresh();
         return;
       }
@@ -105,7 +105,7 @@ export default function AuthForm({ mode, initialError }: AuthFormProps) {
       return;
     }
 
-    router.replace("/mypage");
+    router.replace("/menu");
     router.refresh();
   }
 
