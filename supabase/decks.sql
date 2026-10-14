@@ -5,6 +5,7 @@ create table if not exists public.decks (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
   name text not null check (char_length(trim(name)) between 1 and 40),
+  format text not null default 'ND' check (format in ('ND', 'AD')),
   image_path text,
   is_hidden boolean not null default false,
   created_at timestamptz not null default now()
@@ -12,6 +13,8 @@ create table if not exists public.decks (
 
 alter table public.decks
   add column if not exists image_path text;
+alter table public.decks
+  add column if not exists format text not null default 'ND';
 alter table public.decks
   add column if not exists is_hidden boolean not null default false;
 

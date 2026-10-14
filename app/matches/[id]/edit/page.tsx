@@ -18,8 +18,8 @@ export default async function EditMatchPage({ params }: { params: Promise<{ id: 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/");
   const [{ data: match }, { data: allDecks, error: decksError }, { data: allOpponentDecks, error: opponentsError }] = await Promise.all([
-    supabase.from("matches").select("id, deck_id, opponent_deck_id, opponent_name, result, turn_order, played_at, memo").eq("id", id).eq("user_id", user.id).maybeSingle(),
-    supabase.from("decks").select("id, name, is_hidden").order("created_at", { ascending: false }),
+    supabase.from("matches").select("id, deck_id, opponent_deck_id, opponent_name, result, turn_order, played_at, memo, format").eq("id", id).eq("user_id", user.id).maybeSingle(),
+    supabase.from("decks").select("id, name, format, is_hidden").order("created_at", { ascending: false }),
     supabase.from("opponent_decks").select("id, name, is_hidden").order("name", { ascending: true }),
   ]);
   if (!match) notFound();
@@ -35,7 +35,7 @@ export default async function EditMatchPage({ params }: { params: Promise<{ id: 
         <Link className="deck-back-link" href="/matches">← 対戦履歴へ戻る</Link>
         <section className="deck-form-card match-form-card">
           <p className="eyebrow">EDIT MATCH</p><h1>対戦履歴を編集</h1><p className="deck-form-intro">内容を変更して保存してください。</p>
-          {decksError || opponentsError ? <p className="form-message error-message" role="alert">デッキ一覧を読み込めません。画面を更新してください。</p>
+          {decksError || opponentsError ? <p className="form-message error-message" role="alert">デッキ一覧を読み込めません。Supabase SQL Editorで <code>supabase/duel-formats.sql</code> を実行後、画面を更新してください。</p>
             : <>
               <MatchForm action={updateMatchAction} decks={decks ?? []} initial={match} opponentDecks={opponentDecks ?? []} today={tokyoToday()} />
               <div className="match-edit-delete"><span>この対戦履歴を削除する</span><DeleteMatchButton id={match.id} /></div>

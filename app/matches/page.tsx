@@ -28,7 +28,7 @@ export default async function MatchesPage({
     supabase.from("decks").select("id, name").order("name", { ascending: true }),
     (async () => {
       let query = supabase.from("matches")
-        .select("id, deck_id, deck_name, opponent_name, opponent_deck, opponent_deck_name, result, turn_order, played_at, memo")
+        .select("id, deck_id, deck_name, opponent_name, opponent_deck, opponent_deck_name, result, turn_order, played_at, memo, format")
         .order("played_at", { ascending: false })
         .order("created_at", { ascending: false });
       if (params.from && /^\d{4}-\d{2}-\d{2}$/.test(params.from)) query = query.gte("played_at", `${params.from}T00:00:00+00:00`);
@@ -67,7 +67,7 @@ export default async function MatchesPage({
         {params.deleted === "1" && <p className="match-success-message" role="status">対戦履歴を削除しました。</p>}
         <MatchFilters decks={decks ?? []} values={params} />
         {error ? (
-          <section className="deck-page-message" role="alert">履歴を読み込めません。SupabaseのSQL Editorで <code>supabase/matches.sql</code> を実行してください。</section>
+          <section className="deck-page-message" role="alert">履歴を読み込めません。Supabase SQL Editorで <code>supabase/matches.sql</code> と <code>supabase/duel-formats.sql</code> を実行してください。</section>
         ) : !matches?.length ? (
           <section className="deck-empty-card">
             <div className="deck-empty-illustration" aria-hidden="true"><span>VS</span></div>
@@ -81,7 +81,7 @@ export default async function MatchesPage({
           <section className="match-history-list" aria-label="対戦履歴">
             {matches.map((match) => (
               <article className="match-history-card" key={match.id}>
-                <div className="match-history-date">{formatDate(match.played_at)}<span>{TURN_LABELS[match.turn_order] ?? match.turn_order}</span></div>
+                <div className="match-history-date">{formatDate(match.played_at)}<span>{match.format ?? "ND"} · {TURN_LABELS[match.turn_order] ?? match.turn_order}</span></div>
                 <div className="match-history-main">
                   <h2>{match.deck_name || "デッキ名未設定"}</h2>
                   <p>{match.opponent_name || "対戦相手未設定"}{(match.opponent_deck || match.opponent_deck_name) ? ` · ${match.opponent_deck || match.opponent_deck_name}` : ""}</p>

@@ -23,7 +23,7 @@ export default async function NewDeckPage() {
         <section className="deck-form-card">
           <p className="eyebrow">NEW DECK</p>
           <h1>デッキを登録</h1>
-          <p className="deck-form-intro">デッキ名と画像を登録します。画像はあとから変更できるようにします。</p>
+          <p className="deck-form-intro">デッキ名、ND／ADのフォーマット、画像を登録します。</p>
           <DeckForm />
         </section>
       </div>

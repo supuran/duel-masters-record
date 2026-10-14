@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import { createMatchAction, registerOpponentDeckInline, type MatchActionState } from "../actions";
 
-type DeckOption = { id: string; name: string };
+type DeckOption = { id: string; name: string; format?: string };
 
 export default function MatchForm({
   decks,
@@ -17,7 +17,7 @@ export default function MatchForm({
   opponentDecks: DeckOption[];
   today: string;
   action?: typeof createMatchAction;
-  initial?: { id: string; deck_id: string | null; opponent_deck_id: string | null; opponent_name: string | null; result: string; turn_order: string; played_at: string | null; memo: string | null };
+  initial?: { id: string; deck_id: string | null; opponent_deck_id: string | null; opponent_name: string | null; result: string; turn_order: string; played_at: string | null; memo: string | null; format: string | null };
 }) {
   const initialState: MatchActionState = { error: "" };
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -56,10 +56,18 @@ export default function MatchForm({
       </label>
 
       <label className="field-label">
+        フォーマット
+        <select defaultValue={initial?.format ?? "ND"} name="format" required>
+          <option value="ND">ND（New Division）</option>
+          <option value="AD">AD（All Division）</option>
+        </select>
+      </label>
+
+      <label className="field-label">
         使用デッキ
         <select defaultValue={initial?.deck_id ?? ""} name="deck_id" required>
           <option disabled value="">デッキを選択してください</option>
-          {decks.map((deck) => <option key={deck.id} value={deck.id}>{deck.name}</option>)}
+          {decks.map((deck) => <option key={deck.id} value={deck.id}>{deck.name}（{deck.format ?? "ND"}）</option>)}
         </select>
       </label>
 

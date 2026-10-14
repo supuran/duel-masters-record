@@ -21,7 +21,7 @@ export default async function NewMatchPage() {
   if (!user) redirect("/");
 
   const [{ data: allDecks, error: decksError }, { data: allOpponentDecks, error: opponentsError }] = await Promise.all([
-    supabase.from("decks").select("id, name, is_hidden").eq("is_hidden", false).order("created_at", { ascending: false }),
+    supabase.from("decks").select("id, name, format, is_hidden").eq("is_hidden", false).order("created_at", { ascending: false }),
     supabase.from("opponent_decks").select("id, name, is_hidden").eq("is_hidden", false).order("name", { ascending: true }),
   ]);
   const decks = allDecks ?? [];
@@ -46,7 +46,7 @@ export default async function NewMatchPage() {
           <h1>対戦を記録</h1>
           <p className="deck-form-intro">勝敗や先攻・後攻を記録して、戦績を振り返りましょう。</p>
           {decksError ? (
-            <p className="form-message error-message" role="alert">デッキ一覧を読み込めません。Supabase SQL Editorで <code>supabase/decks.sql</code> と <code>supabase/deck-visibility.sql</code> を実行してください。</p>
+            <p className="form-message error-message" role="alert">デッキ一覧を読み込めません。Supabase SQL Editorで <code>supabase/decks.sql</code>、<code>supabase/deck-visibility.sql</code>、<code>supabase/duel-formats.sql</code> を実行してください。</p>
           ) : !decks?.length ? (
             <div className="match-no-decks">
               <p>対戦登録に表示するデッキがありません。デッキ管理でデッキを登録するか、非表示設定を解除してください。</p>
@@ -56,7 +56,7 @@ export default async function NewMatchPage() {
               </div>
             </div>
           ) : opponentsError ? (
-            <p className="form-message error-message" role="alert">相手デッキ一覧を読み込めません。Supabase SQL Editorで <code>supabase/matches.sql</code> と <code>supabase/deck-visibility.sql</code> を実行してください。</p>
+            <p className="form-message error-message" role="alert">相手デッキ一覧を読み込めません。Supabase SQL Editorで <code>supabase/matches.sql</code>、<code>supabase/deck-visibility.sql</code>、<code>supabase/duel-formats.sql</code> を実行してください。</p>
           ) : (
             <MatchForm decks={decks} opponentDecks={opponentDecks ?? []} today={tokyoToday()} />
           )}

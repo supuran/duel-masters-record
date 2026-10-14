@@ -67,6 +67,7 @@ export async function createMatchAction(
   const opponentDeckId = String(formData.get("opponent_deck_id") ?? "");
   const result = String(formData.get("result") ?? "");
   const turnOrder = String(formData.get("turn_order") ?? "");
+  const format = String(formData.get("format") ?? "ND");
   const playedAt = String(formData.get("played_at") ?? "");
   const opponentName = String(formData.get("opponent_name") ?? "").trim();
   const memo = String(formData.get("memo") ?? "").trim();
@@ -74,6 +75,7 @@ export async function createMatchAction(
   if (!deckId) return { error: "使用デッキを選択してください。" };
   if (!["win", "loss"].includes(result)) return { error: "勝ちまたは負けを選択してください。" };
   if (!["first", "second"].includes(turnOrder)) return { error: "先攻・後攻を選択してください。" };
+  if (!["ND", "AD"].includes(format)) return { error: "NDまたはADを選択してください。" };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(playedAt) || Number.isNaN(Date.parse(`${playedAt}T00:00:00Z`))) {
     return { error: "対戦日を入力してください。" };
   }
@@ -113,6 +115,7 @@ export async function createMatchAction(
     opponent_deck_name: opponentDeck?.name ?? "",
     result,
     turn_order: turnOrder,
+    format,
     played_at: playedAt,
     memo: memo || null,
   });
@@ -137,6 +140,7 @@ export async function updateMatchAction(
   const opponentDeckId = String(formData.get("opponent_deck_id") ?? "");
   const result = String(formData.get("result") ?? "");
   const turnOrder = String(formData.get("turn_order") ?? "");
+  const format = String(formData.get("format") ?? "ND");
   const playedAt = String(formData.get("played_at") ?? "");
   const opponentName = String(formData.get("opponent_name") ?? "").trim();
   const memo = String(formData.get("memo") ?? "").trim();
@@ -144,6 +148,7 @@ export async function updateMatchAction(
   if (!deckId) return { error: "使用デッキを選択してください。" };
   if (!["win", "loss"].includes(result)) return { error: "勝ちまたは負けを選択してください。" };
   if (!["first", "second"].includes(turnOrder)) return { error: "先攻・後攻を選択してください。" };
+  if (!["ND", "AD"].includes(format)) return { error: "NDまたはADを選択してください。" };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(playedAt) || Number.isNaN(Date.parse(`${playedAt}T00:00:00Z`))) return { error: "対戦日を入力してください。" };
   if (opponentName.length > 40 || memo.length > 500) return { error: "対戦相手は40文字以内、メモは500文字以内で入力してください。" };
 
@@ -165,6 +170,7 @@ export async function updateMatchAction(
     opponent_deck_name: opponentDeck?.name ?? "",
     result,
     turn_order: turnOrder,
+    format,
     played_at: playedAt,
     memo: memo || null,
   }).eq("id", matchId).eq("user_id", user.id).select("id").maybeSingle();

@@ -16,6 +16,7 @@ const MIME_EXTENSIONS: Record<string, string> = {
 export default function DeckForm() {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [format, setFormat] = useState<"ND" | "AD">("ND");
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -83,6 +84,7 @@ export default function DeckForm() {
     const { error: insertError } = await supabase.from("decks").insert({
       user_id: user.id,
       name: normalizedName,
+      format,
       image_path: imagePath,
     });
 
@@ -103,6 +105,14 @@ export default function DeckForm() {
         デッキ名
         <input autoComplete="off" maxLength={40} onChange={(event) => setName(event.target.value)} placeholder="例：火水闇ハンデス" required value={name} />
         <span className="field-hint">あとから対戦記録で選ぶための名前です（1〜40文字）</span>
+      </label>
+
+      <label className="field-label">
+        使用フォーマット
+        <select onChange={(event) => setFormat(event.target.value as "ND" | "AD")} value={format}>
+          <option value="ND">ND（New Division）</option>
+          <option value="AD">AD（All Division）</option>
+        </select>
       </label>
 
       <label className="field-label">

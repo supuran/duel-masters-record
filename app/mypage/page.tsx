@@ -2,11 +2,26 @@ import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import LogoutButton from "./logout-button";
+import DeckUsagePie from "./deck-usage-pie";
 import { createClient } from "@/utils/supabase/server";
 
 function percentage(part: number | null, whole: number | null) {
   if (part === null || whole === null || whole === 0) return "—";
   return String(Math.round((part / whole) * 100));
+}
+
+function tokyoOneMonthAgo() {
+  const parts = new Intl.DateTimeFormat("en", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
+  const value = (type: string) => Number(parts.find((item) => item.type === type)?.value ?? 0);
+  const year = value("year");
+  const month = value("month");
+  const day = value("day");
+  const targetMonthIndex = month - 2;
+  const targetYear = year + Math.floor(targetMonthIndex / 12);
+  const normalizedMonthIndex = (targetMonthIndex + 12) % 12;
+  const lastDayOfTargetMonth = new Date(Date.UTC(targetYear, normalizedMonthIndex + 1, 0)).getUTCDate();
+  const targetDay = Math.min(day, lastDayOfTargetMonth);
+  return `${targetYear}-${String(normalizedMonthIndex + 1).padStart(2, "0")}-${String(targetDay).padStart(2, "0")}`;
 }
 
 export default async function MyPage() {
@@ -33,8 +48,8 @@ export default async function MyPage() {
     supabase.from("matches").select("id", { count: "exact", head: true }).eq("turn_order", "second"),
     supabase.from("matches").select("id", { count: "exact", head: true }).eq("turn_order", "second").eq("result", "win"),
     supabase.from("matches").select("id", { count: "exact", head: true }).eq("turn_order", "second").eq("result", "draw"),
-    supabase.from("matches").select("id, deck_name, result, played_at").order("played_at", { ascending: false }).order("created_at", { ascending: false }).limit(5),
-    supabase.from("matches").select("deck_name"),
+    supabase.from("matches").select("id, deck_name, result, played_at, format").order("played_at", { ascending: false }).order("created_at", { ascending: false }).limit(5),
+    supabase.from("matches").select("deck_name, format, played_at").gte("played_at", tokyoOneMonthAgo()),
   ]);
 
   const matchCount = totalResult.count ?? 0;
@@ -43,9 +58,13 @@ export default async function MyPage() {
   const firstMatches = (firstTotalResult.count ?? 0) - (firstDrawsResult.count ?? 0);
   const secondMatches = (secondTotalResult.count ?? 0) - (secondDrawsResult.count ?? 0);
   const recentMatches = recentResult.data ?? [];
-  const deckCounts = new Map<string, number>();
-  for (const match of usageResult.data ?? []) deckCounts.set(match.deck_name, (deckCounts.get(match.deck_name) ?? 0) + 1);
-  const deckUsage = [...deckCounts.entries()].sort((a, b) => b[1] - a[1]);
+  const usageByFormat: Record<"ND" | "AD", Map<string, number>> = { ND: new Map(), AD: new Map() };
+  for (const match of usageResult.data ?? []) {
+    const format = match.format === "AD" ? "AD" : "ND";
+    const deckName = match.deck_name || "デッキ名未設定";
+    usageByFormat[format].set(deckName, (usageByFormat[format].get(deckName) ?? 0) + 1);
+  }
+  const toUsageEntries = (format: "ND" | "AD") => [...usageByFormat[format].entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
   const outcomeLabels: Record<string, string> = { win: "勝ち", loss: "負け", draw: "引き分け（旧記録）" };
 
   return (
@@ -109,24 +128,17 @@ export default async function MyPage() {
         <div className="dashboard-lower-grid">
           <section className="dashboard-panel deck-panel">
             <div className="panel-heading">
-              <div><p className="eyebrow">DECK INSIGHTS</p><h2>デッキ使用割合</h2></div>
+              <div><p className="eyebrow">DECK INSIGHTS</p><h2>デッキ使用割合</h2><p className="deck-usage-period">直近1ヶ月 · 対戦日を基準に集計</p></div>
               <Link className="panel-link" href="/decks">デッキ管理</Link>
             </div>
             {totalError ? (
               <div className="dashboard-data-error">対戦記録テーブルを読み込めません。Supabaseで <code>supabase/matches.sql</code> を実行してください。</div>
-            ) : deckUsage.length === 0 ? (
-              <div className="deck-empty-state">
-                <div className="empty-donut" aria-hidden="true"><span>0<small> MATCHES</small></span></div>
-                <div><h3>対戦データはまだありません</h3><p>対戦を登録するとデッキの使用割合が表示されます。</p></div>
-              </div>
+            ) : usageResult.error ? (
+              <div className="dashboard-data-error">ND／ADの集計を読み込めません。Supabase SQL Editorで <code>supabase/duel-formats.sql</code> を実行してください。</div>
             ) : (
-              <div className="deck-usage-list">
-                {deckUsage.slice(0, 5).map(([deckName, count]) => (
-                  <div className="deck-usage-row" key={deckName}>
-                    <div className="deck-usage-caption"><span>{deckName}</span><small>{count}試合 · {Math.round((count / matchCount) * 100)}%</small></div>
-                    <div className="deck-usage-track"><span style={{ width: `${Math.round((count / matchCount) * 100)}%` }} /></div>
-                  </div>
-                ))}
+              <div className="deck-format-charts">
+                <DeckUsagePie entries={toUsageEntries("ND")} format="ND" />
+                <DeckUsagePie entries={toUsageEntries("AD")} format="AD" />
               </div>
             )}
           </section>
@@ -148,7 +160,7 @@ export default async function MyPage() {
               <div className="dashboard-recent-list">
                 {recentMatches.map((match) => (
                   <div className="dashboard-recent-row" key={match.id}>
-                    <div><strong>{match.deck_name}</strong><small>{match.played_at}</small></div>
+                    <div><strong>{match.deck_name} · {match.format ?? "ND"}</strong><small>{match.played_at}</small></div>
                     <span className={`match-result-badge ${match.result}`}>{outcomeLabels[match.result] ?? match.result}</span>
                   </div>
                 ))}
