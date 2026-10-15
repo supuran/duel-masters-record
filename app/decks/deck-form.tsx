@@ -7,6 +7,7 @@ import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const CIVILIZATIONS = ["光", "水", "闇", "火", "自然"] as const;
 const MIME_EXTENSIONS: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -17,6 +18,9 @@ export default function DeckForm() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [format, setFormat] = useState<"ND" | "AD">("ND");
+  const [deckType, setDeckType] = useState<"competitive" | "casual" | "">("");
+  const [civilizations, setCivilizations] = useState<string[]>([]);
+  const [keyCards, setKeyCards] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -56,6 +60,14 @@ export default function DeckForm() {
       setError("デッキ名は1〜40文字で入力してください。");
       return;
     }
+    if (!deckType) {
+      setError("ガチデッキまたはカジュアルデッキを選択してください。");
+      return;
+    }
+    if (keyCards.trim().length > 300) {
+      setError("キーカードは300文字以内で入力してください。");
+      return;
+    }
 
     setIsPending(true);
     const supabase = createClient();
@@ -85,6 +97,9 @@ export default function DeckForm() {
       user_id: user.id,
       name: normalizedName,
       format,
+      deck_type: deckType,
+      civilizations,
+      key_cards: keyCards.trim(),
       image_path: imagePath,
     });
 
@@ -103,7 +118,7 @@ export default function DeckForm() {
     <form className="deck-form" onSubmit={handleSubmit}>
       <label className="field-label">
         デッキ名
-        <input autoComplete="off" maxLength={40} onChange={(event) => setName(event.target.value)} placeholder="例：火水闇ハンデス" required value={name} />
+        <input autoComplete="off" maxLength={40} onChange={(event) => setName(event.target.value)} placeholder="例：火水闇ハデス" required value={name} />
         <span className="field-hint">あとから対戦記録で選ぶための名前です（1〜40文字）</span>
       </label>
 
@@ -113,6 +128,41 @@ export default function DeckForm() {
           <option value="ND">ND（New Division）</option>
           <option value="AD">AD（All Division）</option>
         </select>
+      </label>
+
+      <label className="field-label">
+        デッキタイプ
+        <select onChange={(event) => setDeckType(event.target.value as "competitive" | "casual" | "")} required value={deckType}>
+          <option disabled value="">選択してください</option>
+          <option value="competitive">ガチデッキ</option>
+          <option value="casual">カジュアルデッキ</option>
+        </select>
+      </label>
+
+      <fieldset className="deck-civilization-fieldset">
+        <legend>文明 <span className="optional-label">任意・複数選択可</span></legend>
+        <div className="deck-civilization-options">
+          {CIVILIZATIONS.map((civilization) => (
+            <label key={civilization}>
+              <input
+                checked={civilizations.includes(civilization)}
+                onChange={(event) => setCivilizations((current) => event.target.checked
+                  ? [...current, civilization]
+                  : current.filter((item) => item !== civilization))}
+                type="checkbox"
+                value={civilization}
+              />
+              <span>{civilization}</span>
+            </label>
+          ))}
+        </div>
+        <span className="field-hint">複数文明のデッキは該当する文明をすべて選んでください。</span>
+      </fieldset>
+
+      <label className="field-label">
+        キーカード <span className="optional-label">任意</span>
+        <input autoComplete="off" maxLength={300} onChange={(event) => setKeyCards(event.target.value)} placeholder="カード名をカンマ区切りで入力" value={keyCards} />
+        <span className="field-hint">カード名を複数入力できます（300文字まで）。</span>
       </label>
 
       <label className="field-label">

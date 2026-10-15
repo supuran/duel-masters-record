@@ -27,18 +27,22 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
   const isFriend = relation?.status === "accepted";
   const requestState = isFriend ? "friend" : relation?.status === "pending" ? (relation.requester_id === user.id ? "outgoing" : "incoming") : "none";
   let decks: { id: string; name: string; image_path: string | null }[] = [];
-  let matches: { id: string; deck_name: string; opponent_name: string | null; opponent_deck: string | null; result: string; played_at: string | null; memo: string | null }[] = [];
+  let matches: { id: string; deck_id: string | null; deck_name: string; opponent_name: string | null; opponent_deck: string | null; result: string; played_at: string | null; memo: string | null }[] = [];
   let totalMatches = 0;
   let totalWins = 0;
   if (isFriend) {
     const [deckResult, matchResult, totalResult, winsResult] = await Promise.all([
       supabase.from("decks").select("id, name, image_path").eq("user_id", id).order("created_at", { ascending: false }),
-      supabase.from("matches").select("id, deck_name, opponent_name, opponent_deck, result, played_at, memo").eq("user_id", id).order("played_at", { ascending: false }).order("created_at", { ascending: false }).limit(30),
+      supabase.from("matches").select("id, deck_id, deck_name, opponent_name, opponent_deck, result, played_at, memo").eq("user_id", id).order("played_at", { ascending: false }).order("created_at", { ascending: false }).limit(30),
       supabase.from("matches").select("id", { count: "exact", head: true }).eq("user_id", id),
       supabase.from("matches").select("id", { count: "exact", head: true }).eq("user_id", id).eq("result", "win"),
     ]);
     decks = deckResult.data ?? [];
     matches = matchResult.data ?? [];
+    const visibleDeckIds = new Set(decks.map((deck) => deck.id));
+    matches = matches.map((match) => match.deck_id && !visibleDeckIds.has(match.deck_id)
+      ? { ...match, deck_name: "フレンド非公開デッキ" }
+      : match);
     totalMatches = totalResult.count ?? 0;
     totalWins = winsResult.count ?? 0;
   }

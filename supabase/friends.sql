@@ -75,7 +75,7 @@ grant execute on function public.respond_friend(uuid, text) to authenticated;
 drop policy if exists "Users can view their own decks" on public.decks;
 drop policy if exists "Owners and friends can view decks" on public.decks;
 create policy "Owners and friends can view decks" on public.decks for select to authenticated
-  using ((select auth.uid()) = user_id or public.are_friends((select auth.uid()), user_id));
+  using ((select auth.uid()) = user_id or (not is_hidden_from_friends and public.are_friends((select auth.uid()), user_id)));
 
 drop policy if exists "Users can view their own matches" on public.matches;
 drop policy if exists "Owners and friends can view matches" on public.matches;
@@ -87,7 +87,13 @@ drop policy if exists "Owners and friends can view deck images" on storage.objec
 create policy "Owners and friends can view deck images" on storage.objects for select to authenticated
   using (bucket_id = 'deck-images' and (
     (storage.foldername(name))[1] = (select auth.uid()::text)
-    or public.are_friends((select auth.uid()), ((storage.foldername(name))[1])::uuid)
+    or exists (
+      select 1 from public.decks d
+      where d.user_id = ((storage.foldername(name))[1])::uuid
+        and d.image_path = storage.objects.name
+        and not d.is_hidden_from_friends
+        and public.are_friends((select auth.uid()), d.user_id)
+    )
   ));
 
 notify pgrst, 'reload schema';

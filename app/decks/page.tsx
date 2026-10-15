@@ -13,7 +13,7 @@ export default async function DecksPage() {
 
   const { data: decks, error } = await supabase
     .from("decks")
-    .select("id, name, format, image_path, created_at, is_hidden")
+    .select("id, name, format, deck_type, civilizations, key_cards, image_path, created_at, is_hidden, is_hidden_from_friends")
     .order("created_at", { ascending: false });
 
   const deckCards = await Promise.all((decks ?? []).map(async (deck) => {
@@ -41,7 +41,7 @@ export default async function DecksPage() {
       <div className="deck-page-content">
         <Link className="deck-back-link" href="/menu">← メインメニューへ戻る</Link>
         <div className="deck-page-title-row">
-          <div><p className="eyebrow">MY COLLECTION</p><h1>デッキ管理</h1><p>デッキを登録し、使用するフォーマット（ND／AD）を設定できます。</p></div>
+          <div><p className="eyebrow">MY COLLECTION</p><h1>デッキ管理</h1><p>フォーマット、文明、キーカード、デッキタイプを設定できます。</p></div>
           <Link className="deck-add-button" href="/decks/new"><span aria-hidden="true">＋</span> デッキを登録</Link>
         </div>
 
@@ -66,9 +66,15 @@ export default async function DecksPage() {
                   ) : <span aria-hidden="true">DM</span>}
                 </div>
                 <div className="deck-item-details">
-                  <div><p className="deck-item-label">{deck.format} · MY DECK{deck.is_hidden ? " · 非表示" : ""}</p><h2>{deck.name}</h2></div>
+                  <div>
+                    <p className="deck-item-label">{deck.format} · {deck.deck_type === "competitive" ? "ガチ" : "カジュアル"}{deck.is_hidden ? " · 対戦登録非表示" : ""}{deck.is_hidden_from_friends ? " · フレンド非表示" : ""}</p>
+                    <h2>{deck.name}</h2>
+                    {deck.civilizations?.length > 0 && <p className="deck-meta-line">文明: {deck.civilizations.join("・")}</p>}
+                    {deck.key_cards && <p className="deck-meta-line">キーカード: {deck.key_cards}</p>}
+                  </div>
                   <div className="deck-item-controls">
                     <DeckVisibilityButton deckId={deck.id} isHidden={deck.is_hidden} kind="own" />
+                    <DeckVisibilityButton deckId={deck.id} isHidden={deck.is_hidden_from_friends} kind="friends" />
                     <DeleteDeckButton deckId={deck.id} imagePath={deck.image_path} />
                   </div>
                 </div>

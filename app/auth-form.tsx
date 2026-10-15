@@ -14,9 +14,6 @@ function signupErrorMessage(error: { message: string; code?: string; status?: nu
   if (code === "email_exists" || code === "user_already_exists" || message.includes("already registered") || message.includes("already exists")) {
     return "このメールアドレスはすでに登録されています。ログインをお試しください。";
   }
-  if (message.includes("profiles_username_lower_key")) {
-    return "このユーザー名はすでに使われています。別のユーザー名をお試しください。";
-  }
   if (code === "over_email_send_rate_limit" || message.includes("rate limit")) {
     return "確認メールの送信回数が上限に達しました。少し時間をおいてからお試しください。";
   }
@@ -52,8 +49,8 @@ export default function AuthForm({ mode, initialError }: AuthFormProps) {
     setMessage("");
 
     const normalizedUsername = username.trim();
-    if (isSignup && (normalizedUsername.length < 2 || normalizedUsername.length > 20)) {
-      setError("ユーザー名は2〜20文字で入力してください。");
+    if (isSignup && (Array.from(normalizedUsername).length < 1 || Array.from(normalizedUsername).length > 20)) {
+      setError("ユーザー名は1〜20文字で入力してください。");
       return;
     }
     if (isSignup && password !== confirmPassword) {
@@ -111,12 +108,12 @@ export default function AuthForm({ mode, initialError }: AuthFormProps) {
 
   return (
     <main className="auth-shell">
-      <section className="auth-art" aria-label="デュエマ戦績管理">
+      <section className="auth-art" aria-label="デュエプレ戦績管理">
         <div className="brand-mark" aria-hidden="true">D</div>
         <div className="art-copy">
           <p className="eyebrow">DUEL MASTERS · MATCH LOG</p>
           <h1>勝ちも、学びも、<br />ここに記録。</h1>
-          <p className="art-description">対戦を記録して、自分のデュエマをもっと楽しもう。</p>
+          <p className="art-description">対戦を記録して、デュエプレをもっと楽しもう。</p>
         </div>
         <div className="card-stack" aria-hidden="true">
           <div className="glow-orb" />
@@ -142,13 +139,13 @@ export default function AuthForm({ mode, initialError }: AuthFormProps) {
                 <input
                   autoComplete="username"
                   maxLength={20}
-                  minLength={2}
+                  minLength={1}
                   onChange={(event) => setUsername(event.target.value)}
-                  placeholder="例：duel_player"
+                  placeholder="ユーザー名を入力"
                   required
                   value={username}
                 />
-                <span className="field-hint">アプリ内で表示されます（2〜20文字）</span>
+                  <span className="field-hint">アプリ内で表示されます（1〜20文字）</span>
               </label>
             )}
 

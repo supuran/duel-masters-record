@@ -4,12 +4,15 @@
 
 create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
-  username text not null check (char_length(trim(username)) between 2 and 20),
+  username text not null check (char_length(trim(username)) between 1 and 20),
   created_at timestamptz not null default now()
 );
 
-create unique index if not exists profiles_username_lower_key
-  on public.profiles (lower(username));
+drop index if exists public.profiles_username_lower_key;
+alter table public.profiles drop constraint if exists profiles_username_check;
+alter table public.profiles drop constraint if exists profiles_username_length_check;
+alter table public.profiles
+  add constraint profiles_username_length_check check (char_length(trim(username)) between 1 and 20) not valid;
 
 alter table public.profiles enable row level security;
 

@@ -11,7 +11,7 @@ export default function OpponentDeckForm() {
     <form action={formAction} className="opponent-deck-form">
       <label className="field-label" htmlFor="opponent-deck-name">相手デッキ名</label>
       <div className="opponent-deck-form-row">
-        <input autoComplete="off" id="opponent-deck-name" maxLength={40} name="name" placeholder="例：水闇自然ジャオウガ" required />
+        <input autoComplete="off" id="opponent-deck-name" maxLength={40} name="name" placeholder="例：火水闇ハデス" required />
         <select aria-label="相手デッキのフォーマット" defaultValue="ND" name="format">
           <option value="ND">ND</option>
           <option value="AD">AD</option>

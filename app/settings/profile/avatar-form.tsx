@@ -33,7 +33,7 @@ export default function AvatarForm({ username, bio, avatarPath, avatarUrl }: { u
     event.preventDefault();
     const normalizedUsername = usernameValue.trim();
     const normalizedBio = bioValue.trim();
-    if (Array.from(normalizedUsername).length < 2 || Array.from(normalizedUsername).length > 20) { setError("ユーザー名は2〜20文字で入力してください。"); return; }
+    if (Array.from(normalizedUsername).length < 1 || Array.from(normalizedUsername).length > 20) { setError("ユーザー名は1〜20文字で入力してください。"); return; }
     if (Array.from(normalizedBio).length > 100) { setError("自己紹介は100文字以内で入力してください。"); return; }
     setPending(true);
     setError("");
@@ -54,7 +54,7 @@ export default function AvatarForm({ username, bio, avatarPath, avatarUrl }: { u
     if (updateError) {
       if (newAvatarPath) await supabase.storage.from("user-avatars").remove([newAvatarPath]);
       setPending(false);
-      setError(updateError.code === "23505" ? "このユーザー名はすでに使われています。別の名前を入力してください。" : `プロフィールを更新できませんでした。${updateError.message}`);
+      setError(`プロフィールを更新できませんでした。${updateError.message}`);
       return;
     }
     if (newAvatarPath && avatarPath?.startsWith(`${user.id}/`)) await supabase.storage.from("user-avatars").remove([avatarPath]);
@@ -67,8 +67,8 @@ export default function AvatarForm({ username, bio, avatarPath, avatarUrl }: { u
   return (
     <form className="avatar-settings-form" onSubmit={handleSubmit}>
       <div className="avatar-settings-preview">{imageUrl ? <Image alt="ユーザーアイコン" className="avatar-preview-image" height={112} src={imageUrl} unoptimized width={112} /> : <span>{initial}</span>}</div>
-      <label className="field-label">ユーザー名<input autoComplete="nickname" maxLength={20} onChange={(event) => setUsernameValue(event.target.value)} required value={usernameValue} /><span className="field-hint">2〜20文字。他のユーザーにも表示されます。</span></label>
-      <label className="field-label">自己紹介<textarea maxLength={100} onChange={(event) => setBioValue(event.target.value)} placeholder="デュエマの好きなデッキなど" rows={4} value={bioValue} /><span className="field-hint">{Array.from(bioValue).length}/100文字</span></label>
+      <label className="field-label">ユーザー名<input autoComplete="nickname" maxLength={20} minLength={1} onChange={(event) => setUsernameValue(event.target.value)} required value={usernameValue} /><span className="field-hint">1〜20文字。他のユーザーにも表示されます。同じ名前を使う人がいても登録できます。</span></label>
+      <label className="field-label">自己紹介<textarea maxLength={100} onChange={(event) => setBioValue(event.target.value)} placeholder="デュエプレの好きなデッキなど" rows={4} value={bioValue} /><span className="field-hint">{Array.from(bioValue).length}/100文字</span></label>
       <label className="field-label">アイコン画像<input accept="image/jpeg,image/png,image/webp" onChange={handleChange} type="file" /><span className="field-hint">JPEG・PNG・WebP、3MBまで</span></label>
       {error && <p className="form-message error-message" role="alert">{error}</p>}
       <div className="deck-form-actions"><Link className="deck-cancel-button" href="/mypage">キャンセル</Link><button className="submit-button" disabled={pending} type="submit">{pending ? "保存中…" : "プロフィールを保存"}</button></div>
