@@ -5,8 +5,6 @@ import LogoutButton from "../mypage/logout-button";
 import DeckSearchForm from "./deck-search-form";
 import { createClient } from "@/utils/supabase/server";
 
-const VALID_CIVILIZATIONS = ["光", "水", "闇", "火", "自然"];
-
 function escapeLike(value: string) {
   return value.replace(/[\\%_]/g, (character) => `\\${character}`);
 }
@@ -14,28 +12,25 @@ function escapeLike(value: string) {
 export default async function DeckSearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ name?: string; type?: string; civilization?: string | string[]; key_card?: string }>;
+  searchParams: Promise<{ name?: string; format?: string; type?: string }>;
 }) {
   const params = await searchParams;
   const name = (params.name ?? "").trim().slice(0, 40);
+  const format = params.format === "ND" || params.format === "AD" ? params.format : "";
   const type = params.type === "competitive" || params.type === "casual" ? params.type : "";
-  const requestedCivilizations = Array.isArray(params.civilization) ? params.civilization : params.civilization ? [params.civilization] : [];
-  const civilizations = requestedCivilizations.filter((value) => VALID_CIVILIZATIONS.includes(value));
-  const keyCard = (params.key_card ?? "").trim().slice(0, 60);
-  const hasSearch = Boolean(name || type || civilizations.length || keyCard);
+  const hasSearch = Boolean(name || format || type);
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/");
 
   let query = supabase.from("decks")
-    .select("id, user_id, name, format, deck_type, civilizations, key_cards, image_path, created_at")
+    .select("id, user_id, name, format, deck_type, image_path, created_at")
     .order("created_at", { ascending: false })
     .limit(60);
   if (name) query = query.ilike("name", `%${escapeLike(name)}%`);
+  if (format) query = query.eq("format", format);
   if (type) query = query.eq("deck_type", type);
-  if (civilizations.length) query = query.overlaps("civilizations", civilizations);
-  if (keyCard) query = query.ilike("key_cards", `%${escapeLike(keyCard)}%`);
   const { data: foundDecks, error } = hasSearch ? await query : { data: [], error: null };
   const decks = foundDecks ?? [];
 
@@ -59,8 +54,8 @@ export default async function DeckSearchPage({
       </header>
       <div className="deck-page-content">
         <Link className="deck-back-link" href="/menu">← メインメニューへ戻る</Link>
-        <div className="deck-page-title-row"><div><p className="eyebrow">DECK SEARCH</p><h1>デッキ検索</h1><p>文明、キーカード、ガチ／カジュアルからデッキを探せます。</p></div></div>
-        <DeckSearchForm initialName={name} initialType={type} initialCivilizations={civilizations} initialKeyCard={keyCard} />
+        <div className="deck-page-title-row"><div><p className="eyebrow">DECK SEARCH</p><h1>デッキ検索</h1><p>ND／ADとガチ／カジュアルでデッキを探せます。</p></div></div>
+        <DeckSearchForm initialName={name} initialFormat={format} initialType={type} />
         {error ? <section className="deck-page-message" role="alert">デッキ検索を読み込めません。Supabase SQL Editorで <code>supabase/profile-deck-search.sql</code> を実行してください。</section>
           : !hasSearch ? <section className="deck-empty-card"><h2>検索条件を入力してください</h2><p>条件を指定すると、自分のデッキとフレンドに公開されているデッキを検索できます。</p></section>
             : !decks.length ? <section className="deck-empty-card"><h2>デッキが見つかりません</h2><p>検索条件を変えてもう一度お試しください。</p></section>
@@ -68,8 +63,6 @@ export default async function DeckSearchPage({
                 {deckCards.map((deck) => <article className="deck-item-card" key={deck.id}>
                   <div className="deck-item-image">{deck.imageUrl ? <Image alt={`${deck.name}の画像`} fill sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw" src={deck.imageUrl} unoptimized /> : <span aria-hidden="true">DP</span>}</div>
                   <div className="deck-item-details"><div><p className="deck-item-label">{deck.format} · {deck.deck_type === "competitive" ? "ガチデッキ" : "カジュアルデッキ"}</p><h2>{deck.name}</h2>
-                    <p className="deck-meta-line">文明: {deck.civilizations?.length ? deck.civilizations.join("・") : "未設定"}</p>
-                    {deck.key_cards && <p className="deck-meta-line">キーカード: {deck.key_cards}</p>}
                     <Link className="deck-owner-link" href={`/players/${deck.user_id}`}>{ownerNames.get(deck.user_id) ?? "プレイヤー"} さんのデッキ →</Link>
                   </div></div>
                 </article>)}

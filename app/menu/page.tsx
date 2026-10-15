@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/server";
 
 const MENU_ITEMS = [
   { href: "/decks", icon: "▤", title: "デッキ管理", description: "使用デッキを登録・整理する", className: "" },
-  { href: "/deck-search", icon: "⌕", title: "デッキ検索", description: "文明・キーカード・タイプから探す", className: "" },
+  { href: "/deck-search", icon: "⌕", title: "デッキ検索", description: "ND／ADやタイプから探す", className: "" },
   { href: "/players", icon: "⌕", title: "ユーザー検索", description: "ユーザーを探してプロフィールを見る", className: "" },
   { href: "/friends", icon: "♧", title: "フレンド", description: "申請やフレンド一覧を管理する", className: "" },
   { href: "/matches", icon: "≡", title: "対戦履歴", description: "過去の記録を検索・編集する", className: "" },

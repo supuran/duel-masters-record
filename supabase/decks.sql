@@ -7,8 +7,6 @@ create table if not exists public.decks (
   name text not null check (char_length(trim(name)) between 1 and 40),
   format text not null default 'ND' check (format in ('ND', 'AD')),
   deck_type text not null default 'casual' check (deck_type in ('competitive', 'casual')),
-  civilizations text[] not null default '{}',
-  key_cards text not null default '' check (char_length(key_cards) <= 300),
   image_path text,
   is_hidden boolean not null default false,
   is_hidden_from_friends boolean not null default false,
@@ -22,16 +20,9 @@ alter table public.decks
 alter table public.decks
   add column if not exists is_hidden boolean not null default false;
 alter table public.decks add column if not exists deck_type text not null default 'casual';
-alter table public.decks add column if not exists civilizations text[] not null default '{}';
-alter table public.decks add column if not exists key_cards text not null default '';
 alter table public.decks add column if not exists is_hidden_from_friends boolean not null default false;
 alter table public.decks drop constraint if exists decks_deck_type_check;
 alter table public.decks add constraint decks_deck_type_check check (deck_type in ('competitive', 'casual')) not valid;
-alter table public.decks drop constraint if exists decks_civilizations_check;
-alter table public.decks add constraint decks_civilizations_check
-  check (civilizations <@ array['光', '水', '闇', '火', '自然']::text[]) not valid;
-alter table public.decks drop constraint if exists decks_key_cards_length_check;
-alter table public.decks add constraint decks_key_cards_length_check check (char_length(key_cards) <= 300) not valid;
 
 create index if not exists decks_user_id_created_at_idx
   on public.decks (user_id, created_at desc);

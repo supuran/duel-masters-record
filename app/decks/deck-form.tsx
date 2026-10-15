@@ -7,7 +7,6 @@ import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-const CIVILIZATIONS = ["光", "水", "闇", "火", "自然"] as const;
 const MIME_EXTENSIONS: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -19,8 +18,6 @@ export default function DeckForm() {
   const [name, setName] = useState("");
   const [format, setFormat] = useState<"ND" | "AD">("ND");
   const [deckType, setDeckType] = useState<"competitive" | "casual" | "">("");
-  const [civilizations, setCivilizations] = useState<string[]>([]);
-  const [keyCards, setKeyCards] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -64,11 +61,6 @@ export default function DeckForm() {
       setError("ガチデッキまたはカジュアルデッキを選択してください。");
       return;
     }
-    if (keyCards.trim().length > 300) {
-      setError("キーカードは300文字以内で入力してください。");
-      return;
-    }
-
     setIsPending(true);
     const supabase = createClient();
     const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -98,8 +90,6 @@ export default function DeckForm() {
       name: normalizedName,
       format,
       deck_type: deckType,
-      civilizations,
-      key_cards: keyCards.trim(),
       image_path: imagePath,
     });
 
@@ -137,32 +127,6 @@ export default function DeckForm() {
           <option value="competitive">ガチデッキ</option>
           <option value="casual">カジュアルデッキ</option>
         </select>
-      </label>
-
-      <fieldset className="deck-civilization-fieldset">
-        <legend>文明 <span className="optional-label">任意・複数選択可</span></legend>
-        <div className="deck-civilization-options">
-          {CIVILIZATIONS.map((civilization) => (
-            <label key={civilization}>
-              <input
-                checked={civilizations.includes(civilization)}
-                onChange={(event) => setCivilizations((current) => event.target.checked
-                  ? [...current, civilization]
-                  : current.filter((item) => item !== civilization))}
-                type="checkbox"
-                value={civilization}
-              />
-              <span>{civilization}</span>
-            </label>
-          ))}
-        </div>
-        <span className="field-hint">複数文明のデッキは該当する文明をすべて選んでください。</span>
-      </fieldset>
-
-      <label className="field-label">
-        キーカード <span className="optional-label">任意</span>
-        <input autoComplete="off" maxLength={300} onChange={(event) => setKeyCards(event.target.value)} placeholder="カード名をカンマ区切りで入力" value={keyCards} />
-        <span className="field-hint">カード名を複数入力できます（300文字まで）。</span>
       </label>
 
       <label className="field-label">

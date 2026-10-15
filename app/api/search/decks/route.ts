@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   if (!query) return Response.json({ suggestions: [] });
 
   const { data, error } = await supabase.from("decks")
-    .select("id, name, format, deck_type, civilizations, key_cards, user_id")
+    .select("id, name, format, deck_type, user_id")
     .ilike("name", `${escapeLike(query)}%`)
     .order("name", { ascending: true })
     .limit(8);

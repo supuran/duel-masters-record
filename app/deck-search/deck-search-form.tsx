@@ -2,19 +2,16 @@
 
 import { useEffect, useState } from "react";
 
-const CIVILIZATIONS = ["光", "水", "闇", "火", "自然"] as const;
-type DeckSuggestion = { id: string; name: string; format: string; deck_type: string; civilizations: string[]; ownerName: string };
+type DeckSuggestion = { id: string; name: string; format: string; deck_type: string; ownerName: string };
 
 export default function DeckSearchForm({
   initialName,
+  initialFormat,
   initialType,
-  initialCivilizations,
-  initialKeyCard,
 }: {
   initialName: string;
+  initialFormat: string;
   initialType: string;
-  initialCivilizations: string[];
-  initialKeyCard: string;
 }) {
   const [name, setName] = useState(initialName);
   const [suggestions, setSuggestions] = useState<DeckSuggestion[]>([]);
@@ -46,34 +43,27 @@ export default function DeckSearchForm({
             {suggestions.map((deck) => <li key={deck.id}>
               <button onClick={() => { setName(deck.name); setSuggestions([]); }} type="button">
                 <strong>{deck.name}</strong>
-                <small>{deck.ownerName} さん · {deck.format} · {deck.deck_type === "competitive" ? "ガチ" : "カジュアル"}{deck.civilizations?.length ? ` · ${deck.civilizations.join("・")}` : ""}</small>
+                <small>{deck.ownerName} さん · {deck.format} · {deck.deck_type === "competitive" ? "ガチ" : "カジュアル"}</small>
               </button>
             </li>)}
           </ul>}
         </div>
       </div>
 
-      <fieldset className="deck-civilization-fieldset search-civilization-fieldset">
-        <legend>文明（複数選択可）</legend>
-        <div className="deck-civilization-options">
-          {CIVILIZATIONS.map((civilization) => <label key={civilization}>
-            <input defaultChecked={initialCivilizations.includes(civilization)} name="civilization" type="checkbox" value={civilization} />
-            <span>{civilization}</span>
-          </label>)}
-        </div>
-        <span className="field-hint">選んだ文明を1つ以上含むデッキを検索します。</span>
-      </fieldset>
-
       <div className="deck-search-filter-row">
+        <label className="field-label" htmlFor="deck-search-format">フォーマット
+          <select defaultValue={initialFormat} id="deck-search-format" name="format">
+            <option value="">ND／ADすべて</option>
+            <option value="ND">ND</option>
+            <option value="AD">AD</option>
+          </select>
+        </label>
         <label className="field-label" htmlFor="deck-search-type">デッキタイプ
           <select defaultValue={initialType} id="deck-search-type" name="type">
             <option value="">すべて</option>
             <option value="competitive">ガチデッキ</option>
             <option value="casual">カジュアルデッキ</option>
           </select>
-        </label>
-        <label className="field-label" htmlFor="deck-search-card">キーカード
-          <input autoComplete="off" defaultValue={initialKeyCard} id="deck-search-card" maxLength={60} name="key_card" placeholder="カード名で検索" />
         </label>
       </div>
       <div className="deck-form-actions">
