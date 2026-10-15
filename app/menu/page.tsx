@@ -32,7 +32,7 @@ export default async function MainMenuPage() {
       <header className="dashboard-header">
         <Link className="dashboard-brand" href="/menu"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link>
         <div className="dashboard-user">
-          <Link aria-label="プロフィール設定" className="user-avatar-link" href="/settings/profile">{avatarUrl ? <Image alt="ユーザーアイコン" className="user-avatar" height={34} src={avatarUrl} unoptimized width={34} /> : <span className="user-avatar" aria-hidden="true">{initial}</span>}</Link>
+          <Link aria-label="マイページへ" className="user-avatar-link" href="/mypage">{avatarUrl ? <Image alt="ユーザーアイコン" className="user-avatar" height={34} src={avatarUrl} unoptimized width={34} /> : <span className="user-avatar" aria-hidden="true">{initial}</span>}</Link>
           <span className="dashboard-username">{username}</span>
           <LogoutButton />
         </div>

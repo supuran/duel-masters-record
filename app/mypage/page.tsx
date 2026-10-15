@@ -84,7 +84,7 @@ export default async function MyPage() {
           <Link href="/friends">フレンド</Link>
         </nav>
         <div className="dashboard-user">
-          <Link aria-label="ユーザーアイコンを設定" className="user-avatar-link" href="/settings/profile">
+          <Link aria-label="マイページへ" className="user-avatar-link" href="/mypage">
             {avatarUrl ? <Image alt="ユーザーアイコン" className="user-avatar" height={34} src={avatarUrl} unoptimized width={34} /> : <span className="user-avatar" aria-hidden="true">{avatarLabel}</span>}
           </Link>
           <span className="dashboard-username">{username}</span>
