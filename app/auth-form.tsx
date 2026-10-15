@@ -127,7 +127,7 @@ export default function AuthForm({ mode, initialError }: AuthFormProps) {
         <div className="mobile-brand"><span className="brand-mark small">D</span><span>DUEL LOG</span></div>
         <div className="auth-content">
           <p className="eyebrow form-eyebrow">DUEL MASTERS RECORD</p>
-          <h2>{isSignup ? "アカウントを作成" : "おかえりなさい"}</h2>
+          <h2>{isSignup ? "アカウントを作成" : "ようこそ"}</h2>
           <p className="form-intro">
             {isSignup ? "対戦記録をつけて、デッキの歩みを残しましょう。" : "ログインして、あなたの対戦記録を確認しましょう。"}
           </p>
