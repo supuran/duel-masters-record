@@ -10,6 +10,8 @@ alter table public.profiles
   add constraint profiles_username_length_check
   check (char_length(trim(username)) between 1 and 20) not valid;
 drop index if exists public.profiles_username_lower_key;
+alter table public.profiles drop constraint if exists profiles_username_key;
+drop index if exists public.profiles_username_key;
 
 alter table public.decks add column if not exists deck_type text not null default 'casual';
 alter table public.decks add column if not exists is_hidden_from_friends boolean not null default false;

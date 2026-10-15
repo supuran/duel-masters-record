@@ -9,6 +9,8 @@ create table if not exists public.profiles (
 );
 
 drop index if exists public.profiles_username_lower_key;
+alter table public.profiles drop constraint if exists profiles_username_key;
+drop index if exists public.profiles_username_key;
 alter table public.profiles drop constraint if exists profiles_username_check;
 alter table public.profiles drop constraint if exists profiles_username_length_check;
 alter table public.profiles
