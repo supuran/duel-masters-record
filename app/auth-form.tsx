@@ -42,6 +42,28 @@ export default function AuthForm({ mode, initialError }: AuthFormProps) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState(initialError ?? "");
   const [isPending, setIsPending] = useState(false);
+  const [isResetMode, setIsResetMode] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+
+  async function handlePasswordReset(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setMessage("");
+    setIsPending(true);
+
+    const supabase = createClient();
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(resetEmail.trim(), {
+      redirectTo: `${window.location.origin}/auth/callback?next=/auth/update-password`,
+    });
+
+    setIsPending(false);
+    if (resetError) {
+      setError("再設定メールを送信できませんでした。時間をおいてから、もう一度お試しください。");
+      return;
+    }
+
+    setMessage("該当するアカウントがある場合、パスワード再設定メールを送信します。メールをご確認ください。");
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -78,6 +100,12 @@ export default function AuthForm({ mode, initialError }: AuthFormProps) {
       setIsPending(false);
       if (signUpError) {
         setError(signupErrorMessage(signUpError));
+        return;
+      }
+
+      // Supabase hides duplicate confirmed accounts when email confirmation is enabled.
+      if (data.user && data.user.identities?.length === 0) {
+        setError("このメールアドレスはすでに使用されています。ログインするか、パスワードを再設定してください。");
         return;
       }
 
@@ -132,7 +160,30 @@ export default function AuthForm({ mode, initialError }: AuthFormProps) {
             {isSignup ? "対戦記録をつけて、デッキの歩みを残しましょう。" : "ログインして、あなたの対戦記録を確認しましょう。"}
           </p>
 
-          <form className="auth-form" onSubmit={handleSubmit}>
+          {isResetMode ? (
+            <form className="auth-form" onSubmit={handlePasswordReset}>
+              <p className="form-intro reset-intro">登録したメールアドレスに、パスワード再設定用のリンクを送ります。</p>
+              <label className="field-label">
+                メールアドレス
+                <input
+                  autoComplete="email"
+                  onChange={(event) => setResetEmail(event.target.value)}
+                  placeholder="you@example.com"
+                  required
+                  type="email"
+                  value={resetEmail}
+                />
+              </label>
+              {error && <p className="form-message error-message" role="alert">{error}</p>}
+              {message && <p className="form-message success-message" role="status">{message}</p>}
+              <button className="submit-button" disabled={isPending} type="submit">
+                {isPending ? "送信中…" : "再設定メールを送信"}
+              </button>
+              <button className="auth-text-button" onClick={() => { setIsResetMode(false); setError(""); setMessage(""); }} type="button">
+                ログインに戻る
+              </button>
+            </form>
+          ) : <form className="auth-form" onSubmit={handleSubmit}>
             {isSignup && (
               <label className="field-label">
                 ユーザー名
@@ -196,13 +247,18 @@ export default function AuthForm({ mode, initialError }: AuthFormProps) {
               {isPending ? "処理中…" : isSignup ? "アカウントを作成" : "ログイン"}
               <span aria-hidden="true">↗</span>
             </button>
-          </form>
+          </form>}
 
-          <p className="auth-switch">
+          {!isResetMode && !isSignup && <p className="auth-switch forgot-password">
+            <button className="auth-text-button" onClick={() => { setResetEmail(email); setIsResetMode(true); setError(""); setMessage(""); }} type="button">
+              パスワードを忘れた方はこちら
+            </button>
+          </p>}
+          {!isResetMode && <p className="auth-switch">
             {isSignup ? "すでにアカウントをお持ちですか？" : "はじめてご利用ですか？"}{" "}
             <Link href={isSignup ? "/" : "/signup"}>{isSignup ? "ログイン" : "新規登録"}</Link>
-          </p>
-          <p className="auth-note">パスワードは8文字以上で設定してください。</p>
+          </p>}
+          {!isResetMode && <p className="auth-note">パスワードは8文字以上で設定してください。</p>}
         </div>
         <p className="panel-footer">© 2026 DUEL MASTERS RECORD</p>
       </section>

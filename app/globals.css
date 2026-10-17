@@ -61,6 +61,11 @@ button, input { font: inherit; }
 .auth-switch { margin: 24px 0 0; text-align: center; color: #777d88; font-size: 12px; }
 .auth-switch a { color: #9a742c; font-weight: 700; text-decoration: none; }
 .auth-switch a:hover { text-decoration: underline; }
+.auth-text-button { padding: 0; border: 0; background: transparent; color: #9a742c; cursor: pointer; font-size: inherit; font-weight: 700; }
+.auth-text-button:hover { text-decoration: underline; }
+.forgot-password { margin-top: 18px; }
+.reset-intro { margin-bottom: 0; }
+.update-password-panel { width: 100%; }
 .auth-note { margin: 30px 0 0; text-align: center; color: #a1a4ac; font-size: 10px; }
 .panel-footer { position: absolute; bottom: 22px; margin: 0; color: #a4a7ae; font-size: 9px; letter-spacing: .15em; }
 .mobile-brand { display: none; }

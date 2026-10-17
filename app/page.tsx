@@ -11,6 +11,8 @@ export default async function Home({ searchParams }: HomeProps) {
   if (user) redirect("/menu");
   const initialError = error === "confirmation"
     ? "メール認証を完了できませんでした。確認メールのリンクを開き直してください。"
+    : error === "recovery"
+      ? "再設定リンクを確認できませんでした。期限切れの場合は、もう一度再設定メールを送信してください。"
     : undefined;
 
   return <AuthForm mode="login" initialError={initialError} />;
