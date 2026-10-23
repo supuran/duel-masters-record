@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeaderAvatarLink from "@/app/header-avatar-link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import LogoutButton from "../mypage/logout-button";
@@ -40,7 +41,8 @@ export default async function PlayersPage({ searchParams }: { searchParams: Prom
 
   return (
     <main className="deck-page-shell">
-      <header className="dashboard-header"><Link className="dashboard-brand" href="/mypage"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link><div className="dashboard-user"><Link className="back-to-dashboard" href="/friends">フレンド</Link><LogoutButton /></div></header>
+      <header className="dashboard-header"><Link className="dashboard-brand" href="/mypage"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link><div className="dashboard-user"><Link className="back-to-dashboard" href="/friends">フレンド</Link><HeaderAvatarLink />
+          <LogoutButton /></div></header>
       <div className="deck-page-content"><Link className="deck-back-link" href="/menu">← メインメニューへ戻る</Link>
         <div className="deck-page-title-row"><div><p className="eyebrow">PLAYERS</p><h1>ユーザー検索</h1><p>ユーザー名で検索して、プロフィールを見たりフレンド申請を送れます。</p></div></div>
         <PlayerSearch initialQuery={q} />

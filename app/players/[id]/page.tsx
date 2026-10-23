@@ -1,4 +1,5 @@
 import Image from "next/image";
+import HeaderAvatarLink from "@/app/header-avatar-link";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import LogoutButton from "../../mypage/logout-button";
@@ -55,7 +56,8 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
   return (
     <main className="deck-page-shell">
-      <header className="dashboard-header"><Link className="dashboard-brand" href="/mypage"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link><div className="dashboard-user"><Link className="back-to-dashboard" href="/players">ユーザー検索</Link><LogoutButton /></div></header>
+      <header className="dashboard-header"><Link className="dashboard-brand" href="/mypage"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link><div className="dashboard-user"><Link className="back-to-dashboard" href="/players">ユーザー検索</Link><HeaderAvatarLink />
+          <LogoutButton /></div></header>
       <div className="deck-page-content player-page-content">
         <Link className="deck-back-link" href="/players">← ユーザー検索へ戻る</Link>
         <section className="player-profile-heading">{profileAvatarUrl ? <Image alt="" className="player-avatar-image large" height={60} src={profileAvatarUrl} unoptimized width={60} /> : <span className="player-avatar large">{profile.username.slice(0, 1).toUpperCase()}</span>}<div><p className="eyebrow">PLAYER PROFILE</p><h1>{profile.username}</h1>{profile.bio && <p className="player-bio">{profile.bio}</p>}</div><FriendRequestButton state={state} userId={id} /></section>

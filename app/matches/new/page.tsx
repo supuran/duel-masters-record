@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeaderAvatarLink from "@/app/header-avatar-link";
 import { redirect } from "next/navigation";
 import LogoutButton from "../../mypage/logout-button";
 import MatchForm from "./match-form";
@@ -36,6 +37,7 @@ export default async function NewMatchPage() {
         </Link>
         <div className="dashboard-user">
           <Link className="back-to-dashboard" href="/matches">対戦履歴</Link>
+          <HeaderAvatarLink />
           <LogoutButton />
         </div>
       </header>

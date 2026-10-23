@@ -1,4 +1,5 @@
 import Image from "next/image";
+import HeaderAvatarLink from "@/app/header-avatar-link";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import LogoutButton from "../mypage/logout-button";
@@ -50,7 +51,8 @@ export default async function DeckSearchPage({
     <main className="deck-page-shell">
       <header className="dashboard-header">
         <Link className="dashboard-brand" href="/menu"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link>
-        <div className="dashboard-user"><Link className="back-to-dashboard" href="/menu">メインメニュー</Link><LogoutButton /></div>
+        <div className="dashboard-user"><Link className="back-to-dashboard" href="/menu">メインメニュー</Link><HeaderAvatarLink />
+          <LogoutButton /></div>
       </header>
       <div className="deck-page-content">
         <Link className="deck-back-link" href="/menu">← メインメニューへ戻る</Link>

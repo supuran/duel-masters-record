@@ -1,4 +1,5 @@
 import Image from "next/image";
+import HeaderAvatarLink from "@/app/header-avatar-link";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import LogoutButton from "../mypage/logout-button";
@@ -34,6 +35,7 @@ export default async function DecksPage() {
         </Link>
         <div className="dashboard-user">
           <Link className="back-to-dashboard" href="/mypage">マイページ</Link>
+          <HeaderAvatarLink />
           <LogoutButton />
         </div>
       </header>

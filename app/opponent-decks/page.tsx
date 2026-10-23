@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeaderAvatarLink from "@/app/header-avatar-link";
 import { redirect } from "next/navigation";
 import LogoutButton from "../mypage/logout-button";
 import OpponentDeckDeleteButton from "./delete-button";
@@ -25,6 +26,7 @@ export default async function OpponentDecksPage() {
         </Link>
         <div className="dashboard-user">
           <Link className="back-to-dashboard" href="/matches/new">対戦を記録</Link>
+          <HeaderAvatarLink />
           <LogoutButton />
         </div>
       </header>

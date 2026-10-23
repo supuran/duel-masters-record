@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeaderAvatarLink from "@/app/header-avatar-link";
 import { redirect } from "next/navigation";
 import LogoutButton from "../mypage/logout-button";
 import { createClient } from "@/utils/supabase/server";
@@ -52,6 +53,7 @@ export default async function MatchesPage({
         </Link>
         <div className="dashboard-user">
           <Link className="back-to-dashboard" href="/mypage">マイページ</Link>
+          <HeaderAvatarLink />
           <LogoutButton />
         </div>
       </header>
