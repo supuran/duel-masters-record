@@ -56,7 +56,7 @@ export default async function PlayerProfilePage({ params }: { params: Promise<{ 
 
   return (
     <main className="deck-page-shell">
-      <header className="dashboard-header"><Link className="dashboard-brand" href="/mypage"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link><div className="dashboard-user"><Link className="back-to-dashboard" href="/players">ユーザー検索</Link><HeaderAvatarLink />
+      <header className="dashboard-header"><Link className="dashboard-brand" href="/mypage"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link><div className="dashboard-user"><HeaderAvatarLink />
           <LogoutButton /></div></header>
       <div className="deck-page-content player-page-content">
         <Link className="deck-back-link" href="/players">← ユーザー検索へ戻る</Link>

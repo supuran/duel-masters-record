@@ -36,7 +36,6 @@ export default async function NewMatchPage() {
           <span>DUEL LOG<small>戦績管理</small></span>
         </Link>
         <div className="dashboard-user">
-          <Link className="back-to-dashboard" href="/matches">対戦履歴</Link>
           <HeaderAvatarLink />
           <LogoutButton />
         </div>

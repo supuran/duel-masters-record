@@ -30,7 +30,7 @@ export default async function EditMatchPage({ params }: { params: Promise<{ id: 
     <main className="deck-page-shell">
       <header className="dashboard-header">
         <Link className="dashboard-brand" href="/mypage"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link>
-        <div className="dashboard-user"><Link className="back-to-dashboard" href="/matches">対戦履歴</Link><HeaderAvatarLink />
+        <div className="dashboard-user"><HeaderAvatarLink />
           <LogoutButton /></div>
       </header>
       <div className="deck-form-page-content">

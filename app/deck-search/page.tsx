@@ -51,7 +51,7 @@ export default async function DeckSearchPage({
     <main className="deck-page-shell">
       <header className="dashboard-header">
         <Link className="dashboard-brand" href="/menu"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link>
-        <div className="dashboard-user"><Link className="back-to-dashboard" href="/menu">メインメニュー</Link><HeaderAvatarLink />
+        <div className="dashboard-user"><HeaderAvatarLink />
           <LogoutButton /></div>
       </header>
       <div className="deck-page-content">

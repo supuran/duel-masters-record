@@ -25,7 +25,6 @@ export default async function OpponentDecksPage() {
           <span>DUEL LOG<small>戦績管理</small></span>
         </Link>
         <div className="dashboard-user">
-          <Link className="back-to-dashboard" href="/matches/new">対戦を記録</Link>
           <HeaderAvatarLink />
           <LogoutButton />
         </div>

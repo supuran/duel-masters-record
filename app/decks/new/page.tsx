@@ -17,7 +17,7 @@ export default async function NewDeckPage() {
           <span className="dashboard-brand-mark">D</span>
           <span>DUEL LOG<small>戦績管理</small></span>
         </Link>
-        <div className="dashboard-user"><Link className="back-to-dashboard" href="/decks">デッキ一覧</Link><HeaderAvatarLink />
+        <div className="dashboard-user"><HeaderAvatarLink />
           <LogoutButton /></div>
       </header>
       <div className="deck-form-page-content">

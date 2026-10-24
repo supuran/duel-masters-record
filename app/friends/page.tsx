@@ -25,7 +25,7 @@ export default async function FriendsPage() {
   const outgoing = rows.filter((row) => row.requester_id === user.id && row.status === "pending");
   const friends = rows.filter((row) => row.status === "accepted");
   return (
-    <main className="deck-page-shell"><header className="dashboard-header"><Link className="dashboard-brand" href="/mypage"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link><div className="dashboard-user"><Link className="back-to-dashboard" href="/players">ユーザー検索</Link><HeaderAvatarLink />
+    <main className="deck-page-shell"><header className="dashboard-header"><Link className="dashboard-brand" href="/mypage"><span className="dashboard-brand-mark">D</span><span>DUEL LOG<small>戦績管理</small></span></Link><div className="dashboard-user"><HeaderAvatarLink />
           <LogoutButton /></div></header>
       <div className="deck-page-content"><Link className="deck-back-link" href="/menu">← メインメニューへ戻る</Link><div className="deck-page-title-row"><div><p className="eyebrow">FRIENDS</p><h1>フレンド</h1><p>フレンド申請を管理し、相手のデッキや戦績を閲覧できます。</p></div><Link className="deck-add-button" href="/players">ユーザーを検索</Link></div>
         {error ? <p className="deck-page-message" role="alert">フレンド機能を使うには、Supabase SQL Editorで <code>supabase/friends.sql</code> を実行してください。</p> : <>
