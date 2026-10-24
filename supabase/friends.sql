@@ -32,6 +32,7 @@ as $$
       or (fr.requester_id = user_b and fr.recipient_id = user_a)));
 $$;
 revoke all on function public.are_friends(uuid, uuid) from public;
+revoke all on function public.are_friends(uuid, uuid) from anon;
 grant execute on function public.are_friends(uuid, uuid) to authenticated;
 
 create or replace function public.request_friend(target_user_id uuid)
@@ -68,17 +69,28 @@ begin
 end;
 $$;
 revoke all on function public.request_friend(uuid) from public;
+revoke all on function public.request_friend(uuid) from anon;
 revoke all on function public.respond_friend(uuid, text) from public;
+revoke all on function public.respond_friend(uuid, text) from anon;
 grant execute on function public.request_friend(uuid) to authenticated;
 grant execute on function public.respond_friend(uuid, text) to authenticated;
 
+-- Legacy friendship writes must not let a user create an already-accepted friendship.
+drop policy if exists friendships_insert_request on public.friendships;
+create policy friendships_insert_request on public.friendships for insert to authenticated
+  with check (requester_id = (select auth.uid()) and addressee_id <> (select auth.uid()) and status = 'pending');
+
 drop policy if exists "Users can view their own decks" on public.decks;
 drop policy if exists "Owners and friends can view decks" on public.decks;
+drop policy if exists decks_select_own_or_friend on public.decks;
 create policy "Owners and friends can view decks" on public.decks for select to authenticated
   using ((select auth.uid()) = user_id or (not is_hidden_from_friends and public.are_friends((select auth.uid()), user_id)));
 
 drop policy if exists "Users can view their own matches" on public.matches;
 drop policy if exists "Owners and friends can view matches" on public.matches;
+drop policy if exists matches_select_own_or_friend on public.matches;
+drop policy if exists matches_insert_own on public.matches;
+drop policy if exists matches_update_own on public.matches;
 create policy "Owners and friends can view matches" on public.matches for select to authenticated
   using ((select auth.uid()) = user_id or public.are_friends((select auth.uid()), user_id));
 
